@@ -21,7 +21,10 @@
               type="email"
               dense
               autofocus
-              :rules="[val => val && val.length > 0 || 'El email es obligatorio']"
+              :rules="[
+                val => val && val.length > 0 || 'El email es obligatorio',
+                val => /.+@.+\..+/.test(val) || 'El email es inválido'
+                ]"
             />
             <q-input
             outlined
@@ -64,6 +67,7 @@
   })
   
   const login = async () => {
+    
     try {
 
       const response = await postData('/login', { email: email.value, password: password.value });

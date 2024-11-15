@@ -14,34 +14,106 @@
 
    
     <q-drawer v-model="leftDrawerOpen" side="left" behavior="mobile" bordered>
-      <img src="https://cdn-icons-png.flaticon.com/128/10112/10112441.png" alt="">
-      <q-list>
-        <q-item clickable to="/movimientos">
-          <q-item-section>
-            <q-item-label>Movimientos</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable to="/articulos">
-          <q-item-section>
-            <q-item-label>Artículos</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable to="/categorias">
-          <q-item-section>
-            <q-item-label>Categorias</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable to="/terceros/clientes">
-          <q-item-section>
-            <q-item-label>Clientes</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable to="/terceros/proveedores">
-          <q-item-section>
-            <q-item-label>Proveedores</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
+      
+      <q-img class="absolute-top" src="https://cdn.quasar.dev/img/material.png" style="height: 150px; background-color: #1d1d1d">
+          <div class="absolute-bottom bg-transparent">
+            <q-avatar size="56px" class="q-mb-sm">
+              <img src="https://cdn.quasar.dev/img/boy-avatar.png">
+            </q-avatar>
+            <div class="text-weight-bold">
+              Razvan Stoenescu
+            </div>
+            <div>
+              @rstoenescu
+            </div>
+          </div>
+        </q-img>
+        <q-scroll-area style="height: calc(100% - 150px); margin-top: 150px; border-right: 1px solid #ddd">
+          <q-list padding>
+            
+            <q-item clickable v-ripple to="/inicio" active-class="my-menu-link" exact>
+              <q-item-section avatar>
+                <q-icon name="home" />
+              </q-item-section>
+              <q-item-section>
+                Inicio
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-ripple to="/articulos" active-class="my-menu-link" >
+              <q-item-section avatar>
+                <q-icon name="article" />
+              </q-item-section>
+              <q-item-section>
+                Articulos
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-ripple to="/categorias" active-class="my-menu-link">
+              <q-item-section avatar>
+                <q-icon name="category" />
+              </q-item-section>
+              <q-item-section>
+                Categorias
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-ripple to="/usuarios" active-class="my-menu-link">
+              <q-item-section avatar>
+                <q-icon name="people" />
+              </q-item-section>
+              <q-item-section>
+                Usuarios
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-ripple to="/terceros/clientes" active-class="my-menu-link">
+              <q-item-section avatar>
+                <q-icon name="group" />
+              </q-item-section>
+              <q-item-section>
+                Clientes
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-ripple to="/terceros/proveedores" active-class="my-menu-link">
+              <q-item-section avatar>
+                <q-icon name="groups" />
+              </q-item-section>
+              <q-item-section>
+                Proveedores
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-ripple to="/movimientos" active-class="my-menu-link">
+              <q-item-section avatar>
+                <q-icon name="receipt" />
+              </q-item-section>
+              <q-item-section>
+                Movimientos
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-ripple to="/entradas" active-class="my-menu-link">
+              <q-item-section avatar>
+                <q-icon name="input" />
+              </q-item-section>
+              <q-item-section >
+                Entradas
+              </q-item-section>
+            </q-item>
+
+            <q-item clickable v-ripple to="/salidas" active-class="my-menu-link">
+              <q-item-section avatar>
+                <q-icon name="output" />
+              </q-item-section>
+             
+              <q-item-section>
+                Salidas
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
@@ -69,7 +141,7 @@ const router = useRouter()
 
 
 const leftDrawerOpen = ref(false)
-
+const rightDrawerOpen = ref(false)
 
 
 function toggleLeftDrawer() {
@@ -104,4 +176,11 @@ function logout() {
   font-size: 18px;
   vertical-align: middle;
 }
+
+.my-menu-link {
+  color: white;
+  background-color: rgba(2, 21, 38, 0.37);
+}
+
+
 </style>
