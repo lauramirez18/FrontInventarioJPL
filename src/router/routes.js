@@ -1,6 +1,5 @@
 import Articulos from '../views/Articulos.vue'
 import Categorias from '../views/Categorias.vue'
-import Movimientos from '../views/Movimientos.vue'
 import Proveedores from '../views/Proveedores.vue'
 import Clientes from '../views/Clientes.vue'  
 import Login from '../views/Login.vue'
@@ -38,11 +37,6 @@ const routes = [
           path: 'entradas',
           name: 'entradas',
           component: () => Entradas
-        },
-        {
-          path: 'movimientos',
-          name: 'movimientos',
-          component: () => Movimientos
         },
         {
             path: 'articulos',

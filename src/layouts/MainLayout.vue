@@ -4,10 +4,11 @@
         <q-header id="header-main" v-show="$route.name !== 'Login' && $route.name !== '/'">
             <q-toolbar>
 
-                <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
+                <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" v-show="$route.name !== 'inicio'" />
                 <q-toolbar-title class="text-left"></q-toolbar-title>
                 <q-space />
 
+        
                 <q-btn dense flat round icon="logout" @click="logout" />
             </q-toolbar>
         </q-header>
@@ -68,13 +69,6 @@
                             <q-icon name="groups" />
                         </q-item-section>
                         <q-item-section>Proveedores</q-item-section>
-                    </q-item>
-
-                    <q-item clickable v-ripple to="/movimientos" active-class="my-menu-link">
-                        <q-item-section avatar>
-                            <q-icon name="receipt" />
-                        </q-item-section>
-                        <q-item-section>Movimientos</q-item-section>
                     </q-item>
 
                     <q-item clickable v-ripple to="/entradas" active-class="my-menu-link">

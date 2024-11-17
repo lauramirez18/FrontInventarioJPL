@@ -1,5 +1,6 @@
 <template>
-    <div>
-        <h1>Articulos</h1>
-    </div>
+   <q-page padding>
+        <h4 class="text-center  text-weight-bold" >Articulos</h4>
+        <hr>
+    </q-page>
 </template>

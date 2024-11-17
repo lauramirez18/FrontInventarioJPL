@@ -77,7 +77,7 @@
       if (token) {
        authStore.token = response.token;
         console.log('Token guardado:', authStore.token);
-        router.replace("/articulos");
+        router.replace("/inicio");
       } else {
         console.log('Respuesta sin token:', response);
       }

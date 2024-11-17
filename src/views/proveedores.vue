@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <h1>Proveedores</h1>
-
-    <q-table class="tabla-proovedores" :rows="rows" :columns="columns" row-key="name"
+<q-page padding>
+        <h4 class="text-center  text-weight-bold" >Proveedores</h4>
+        <hr>
+        <q-table class="tabla-proovedores" :rows="rows" :columns="columns" row-key="name"
       :rows-per-page-options="[5, 10, 15, 20]" :pagination="pagination">
       <template v-slot:header="props">
         <tr>
@@ -63,7 +63,11 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-  </div>
+  
+    </q-page>
+    
+
+    
 </template>
 
 <script setup>

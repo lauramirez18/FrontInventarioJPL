@@ -1,8 +1,8 @@
 <template>
-    <div>
-      <h1>Clientes</h1>
-      
-      <q-table
+    <q-page padding>
+        <h4 class="text-center  text-weight-bold" >Clientes</h4>
+        <hr>
+        <q-table
         class="tabla-clientes"
         :rows="rows"
         :columns="columns"
@@ -34,7 +34,11 @@
           </q-tr>
         </template>
       </q-table>
-    </div>
+
+    </q-page>
+      
+      
+    
   </template>
   
   <script setup>
@@ -147,21 +151,8 @@
   </script>
   
   <style scoped>
-  * {
-    margin: 0;
-    padding: 0;
-  }
   
-  h1 {
-    text-align: center;
-    font-size: 30px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 20px;
-    border-bottom: 3px solid  rgb(2, 21, 38);
-    
-  }
-  
+ 
   .tabla-clientes {
     margin: 30px auto;
     max-width: 1200px;
