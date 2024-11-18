@@ -1,9 +1,9 @@
 <template>
-<q-page padding>
-        <h4 class="text-center  text-weight-bold" >Proveedores</h4>
-        <hr>
-        <q-table class="tabla-proovedores" :rows="rows" :columns="columns" row-key="name"
-      :rows-per-page-options="[5, 10, 15, 20]" :pagination="pagination">
+  <q-page padding>
+    <h4 class="text-center  text-weight-bold">Proveedores</h4>
+    <hr>
+    <q-table class="tabla-proovedores" :rows="rows" :columns="columns" row-key="name">
+      
       <template v-slot:header="props">
         <tr>
           <th v-for="col in props.cols" :key="col.name" class="tabla-header">
@@ -63,11 +63,11 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-  
-    </q-page>
-    
 
-    
+  </q-page>
+
+
+
 </template>
 
 <script setup>
@@ -90,7 +90,7 @@ const rows = ref([]);
 const authStore = useAuthStore();
 const modalEditar = ref(false);
 const datosProveedor = ref({});
-const modalConfirmarEstado = ref(false);  // Estado para el modal de confirmación
+const modalConfirmarEstado = ref(false); 
 const proveedorSeleccionado = ref(null);
 
 async function getDataFromApi() {
