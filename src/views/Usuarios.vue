@@ -1,9 +1,12 @@
 <template>
     <q-page padding>
-        <h4 class="text-center  text-weight-bold">Articulos</h4>
+        <h4 class="text-center text-weight-bold">Usuarios</h4>
         <hr>
-        <q-table class="tabla-clientes" :rows="rows" :columns="columns" row-key="name">
 
+       
+        <q-btn label="+ Registrar"  @click="abrirFormulario" class="q-mb-md" />
+
+        <q-table class="tabla-clientes" :rows="rows" :columns="columns" row-key="name">
             <template v-slot:header="props">
                 <tr>
                     <th v-for="col in props.cols" :key="col.name" :class="'tabla-header'">
@@ -11,12 +14,6 @@
                     </th>
                 </tr>
             </template>
-
-            <template v-slot:body-cell-categoria="props">
-  <q-td :props="props" class="q-pa-sm">
-    <span>{{ props.row.categoria.nombre }}</span>
-  </q-td>
-</template>
 
             <template v-slot:body-cell-estado="props">
                 <q-td :props="props" class="q-pa-sm">
@@ -28,12 +25,12 @@
             <template v-slot:body-cell-opciones="props">
                 <q-td :props="props" class="tabla-cell opciones">
                     <q-btn icon="edit" color="primary" flat @click="editarProveedor(props.row)" class="q-mr-sm" />
-
                     <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'" color="negative" flat
                         @click="mostrarModalConfirmacion(props.row)" />
                 </q-td>
             </template>
         </q-table>
+
         <q-dialog v-model="modalConfirmarEstado">
             <q-card>
                 <q-card-section>
@@ -47,16 +44,28 @@
             </q-card>
         </q-dialog>
 
+        <q-dialog v-model="modalAgregarUsuario" persistent>
+            <q-card>
+                <q-card-section>
+                    <div class="text-h6">Agregar Nuevo Usuario</div>
+                    <q-input v-model="nuevoUsuario.nombre" label="Nombre" filled />
+                    <q-input v-model="nuevoUsuario.email" label="Email" filled />
+                    <q-input type="password" v-model="nuevoUsuario.password" label="Contraseña" filled />
+                    <q-input v-model="nuevoUsuario.estado" label="Estado" filled type="number" min="0" max="1" />
+                </q-card-section>
 
+                <q-card-actions>
+                    <q-btn label="Cancelar" color="secondary" flat @click="cerrarFormulario" />
+                    <q-btn label="Guardar" color="primary" flat @click="guardarUsuario" />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
     </q-page>
-
-
-
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getData } from '../services/apiClient.js'
+import { getData, postData } from '../services/apiClient.js'  
 import { useAuthStore } from '../store/useAuth.js'
 
 const columns = ref([
@@ -68,27 +77,11 @@ const columns = ref([
         sortable: true,
         style: "font-weight: bold;",
     },
-
     {
-        name: "precio",
+        name: "email",
         align: "center",
-        label: "Precio",
-        field: "precio",
-        sortable: true,
-        
-    },
-    {
-        name: "stock",
-        align: "center",
-        label: "Stock",
-        field: "stock",
-        sortable: true,
-    },
-    {
-        name: "categoria",
-        align: "center",
-        label: "Categoria",
-        field: "categoria",
+        label: "Email",
+        field: "email",
         sortable: true,
     },
     {
@@ -108,28 +101,33 @@ const columns = ref([
     },
 ])
 
+const rows = ref([]);
+const modalConfirmarEstado = ref(false); 
+const modalAgregarUsuario = ref(false);   
+const nuevoUsuario = ref({
+    nombre: '',
+    email: '',
+    password: '',
+    estado: 1,  
+});
+const usuarioSeleccionado = ref(null);
+const authStore = useAuthStore()
+
 onMounted(async () => {
     await getDataFromApi()
 })
 
-
-const rows = ref([]);
-const modalConfirmarEstado = ref(false); 
-const usuarioSeleccionado = ref(null);
-const authStore = useAuthStore()
-
 async function getDataFromApi() {
     const token = authStore.getToken();
-    console.log("toke recuperado del store", token)
+    console.log("Token recuperado del store", token)
     if (!token) {
         console.log('Token no encontrado')
         return
     }
 
     try {
-        const response = await getData('articulos')
+        const response = await getData('usuarios')
         if (response && Array.isArray(response)) {
-            console.log('response', response)
             rows.value = response
         } else {
             console.log('La respuesta no contiene los datos esperados')
@@ -140,12 +138,42 @@ async function getDataFromApi() {
 }
 
 const mostrarModalConfirmacion = (usuario) => {
-    usuarioSeleccionado.value = usuario; 
-    modalConfirmarEstado.value = true;      
-};
+    usuarioSeleccionado.value = usuario;  
+    modalConfirmarEstado.value = true;   
+}
 
+const abrirFormulario = () => {
+    modalAgregarUsuario.value = true; 
+}
 
+const cerrarFormulario = () => {
+    modalAgregarUsuario.value = false; 
+    resetFormulario();  
+}
 
+const resetFormulario = () => {
+    nuevoUsuario.value = {
+        nombre: '',
+        email: '',
+        password: '',
+        estado: 1,  
+    };
+}
+
+const guardarUsuario = async () => {
+    try {
+        
+        const response = await postData('registro', nuevoUsuario.value);
+        console.log('Usuario creado con éxito', response);
+
+        
+        modalAgregarUsuario.value = false;
+        await getDataFromApi();
+        resetFormulario(); 
+    } catch (error) {
+        console.log('Error al crear usuario:', error.response ? error.response.data : error);
+    }
+}
 </script>
 
 <style scoped>
@@ -164,7 +192,6 @@ const mostrarModalConfirmacion = (usuario) => {
     padding: 12px;
     text-align: center;
 }
-
 
 .tabla-cell.opciones button {
     padding: 5px 10px;

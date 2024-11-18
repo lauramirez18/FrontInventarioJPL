@@ -21,7 +21,10 @@
               type="email"
               dense
               autofocus
-              :rules="[val => val && val.length > 0 || 'El email es obligatorio']"
+              :rules="[
+                val => val && val.length > 0 || 'El email es obligatorio',
+                val => /.+@.+\..+/.test(val) || 'El email es inválido'
+                ]"
             />
             <q-input
             outlined
@@ -48,6 +51,7 @@
   import { ref, onMounted } from 'vue';
   import { postData } from '../services/apiClient.js';
   import { useRouter } from 'vue-router';
+  import {useAuthStore} from '../store/useAuth.js';
 
   
   
@@ -55,21 +59,33 @@
   const password = ref('');   
   const passwordError = ref('');  
   const router = useRouter();
+<<<<<<< HEAD
   const showForm = ref(false);  
+=======
+  const showForm = ref(false);
+  const authStore = useAuthStore();
+>>>>>>> 4fd94f7daca9c99d20cd3efad1380ad1783e90a3
   
   onMounted(() => {
     showForm.value = true;
   })
   
+<<<<<<< HEAD
   const login = async () => {   
+=======
+  const login = async () => {
+    
+>>>>>>> 4fd94f7daca9c99d20cd3efad1380ad1783e90a3
     try {
+
       const response = await postData('/login', { email: email.value, password: password.value });
       const token = response.token;
-  
+      console.log('Token recibido:', response);
+      
       if (token) {
-        localStorage.setItem('token', token);
-        console.log('Token guardado:', localStorage.getItem('token'));
-        router.push("/articulos");
+       authStore.token = response.token;
+        console.log('Token guardado:', authStore.token);
+        router.replace("/inicio");
       } else {
         console.log('Respuesta sin token:', response);
       }
@@ -83,6 +99,7 @@
       }
     }
   };
+
   </script>
   
   <style scoped>
