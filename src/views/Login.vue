@@ -59,23 +59,14 @@
   const password = ref('');   
   const passwordError = ref('');  
   const router = useRouter();
-<<<<<<< HEAD
   const showForm = ref(false);  
-=======
-  const showForm = ref(false);
   const authStore = useAuthStore();
->>>>>>> 4fd94f7daca9c99d20cd3efad1380ad1783e90a3
   
   onMounted(() => {
     showForm.value = true;
   })
   
-<<<<<<< HEAD
-  const login = async () => {   
-=======
   const login = async () => {
-    
->>>>>>> 4fd94f7daca9c99d20cd3efad1380ad1783e90a3
     try {
 
       const response = await postData('/login', { email: email.value, password: password.value });
