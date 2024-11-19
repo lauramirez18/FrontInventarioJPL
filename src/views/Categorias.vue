@@ -4,5 +4,4 @@
         <hr>
         
     </q-page>
-</template>
-
+</template> 
