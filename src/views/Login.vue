@@ -56,10 +56,10 @@
   
   
   const email = ref('');
-  const password = ref('');
+  const password = ref('');   
   const passwordError = ref('');  
   const router = useRouter();
-  const showForm = ref(false);
+  const showForm = ref(false);  
   const authStore = useAuthStore();
   
   onMounted(() => {
@@ -67,7 +67,6 @@
   })
   
   const login = async () => {
-    
     try {
 
       const response = await postData('/login', { email: email.value, password: password.value });
