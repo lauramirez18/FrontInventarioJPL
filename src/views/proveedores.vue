@@ -3,7 +3,7 @@
     <h4 class="text-center text-weight-bold">Proveedores</h4>
     <hr>
     <q-table class="tabla-proovedores" :rows="rows" :columns="columns" row-key="name">
-      
+
       <template v-slot:header="props">
         <tr>
           <th v-for="col in props.cols" :key="col.name" class="tabla-header">
@@ -22,13 +22,14 @@
       <template v-slot:body-cell-opciones="props">
         <q-td :props="props" class="tabla-cell opciones">
           <q-btn icon="edit" color="primary" flat @click="editarProveedor(props.row)" class="q-mr-sm" />
-          <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'" color="negative" flat
+          <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'"
+            :color="props.row.estado === 1 ? 'negative' : 'positive'" flat
             @click="mostrarModalConfirmacion(props.row)" />
         </q-td>
       </template>
     </q-table>
 
-   
+
     <q-dialog v-model="modalConfirmarEstado">
       <q-card>
         <q-card-section>
@@ -42,7 +43,7 @@
       </q-card>
     </q-dialog>
 
-   
+
     <q-dialog v-model="modalEditar">
       <q-card>
         <q-card-section>
@@ -59,7 +60,7 @@
 
         <q-card-actions>
           <q-btn label="Cancelar" color="secondary" flat @click="modalEditar = false" />
-          <q-btn label="Guardar" color="primary" flat @click="updateProveedor()" />
+          <q-btn label="Guardar" color="primary" flat @click="putProveedores()" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -85,11 +86,11 @@ const rows = ref([]);
 const authStore = useAuthStore();
 const modalEditar = ref(false);
 let datosProveedor = ({});
-const modalConfirmarEstado = ref(false); 
+const modalConfirmarEstado = ref(false);
 const proveedorSeleccionado = ref(null);
 
 
-async function getDataFromApi() {
+async function getProveedores() {
   const token = authStore.getToken();
   if (!token) {
     console.log('Token no encontrado');
@@ -106,14 +107,14 @@ async function getDataFromApi() {
   } catch (error) {
     console.log('Error al obtener los datos:', error.response ? error.response.data : error);
   }
-  
+
 }
 
 onMounted(async () => {
-  await getDataFromApi();
+  await getProveedores();
 });
 
-async function updateProveedor() {
+async function putProveedores() {
   try {
     const token = authStore.getToken();
     if (!token) {
@@ -121,9 +122,9 @@ async function updateProveedor() {
       return;
     }
     console.log(datosProveedor);
-    
+
     const response = await putData(`terceros/${datosProveedor._id}`, datosProveedor);
- modalEditar.value = false;
+    modalEditar.value = false;
   } catch (error) {
     console.log('Error al actualizar los datos:', error);
   }
@@ -131,31 +132,40 @@ async function updateProveedor() {
 
 const editarProveedor = (Proveedor) => {
   console.log(Proveedor);
-  
-  datosProveedor = Proveedor ;  
-  modalEditar.value = true;  
+
+  datosProveedor = Proveedor;
+  modalEditar.value = true;
 };
 
 const mostrarModalConfirmacion = (proveedor) => {
-  proveedorSeleccionado.value = proveedor;  
-  modalConfirmarEstado.value = true;     
+  proveedorSeleccionado.value = proveedor;
+  modalConfirmarEstado.value = true;
 };
 
 
 
 const confirmarCambioEstado = async () => {
+
   if (!proveedorSeleccionado.value) return;
-
   const proveedor = proveedorSeleccionado.value;
-  proveedor.estado = proveedor.estado === 1 ? 0 : 1;  
+  proveedor.estado = proveedor.estado === 1 ? 0 : 1;
 
-  console.log('Estado cambiado para', proveedor);
-  await updateProveedor(proveedor);  
-  modalConfirmarEstado.value = false;  
+  try {
+
+    const response = await putData(`terceros/${proveedor._id}`, { estado: proveedor.estado });
+    console.log('Estado actualizado con éxito:', response);
+
+    await getProveedores();
+    modalConfirmarEstado.value = false;
+
+  } catch (error) {
+    console.log('Error al actualizar el estado:', error.response ? error.response.data : error);
+
+  }
 };
 
 const cancelarCambioEstado = () => {
-  modalConfirmarEstado.value = false;  
+  modalConfirmarEstado.value = false;
 };
 </script>
 

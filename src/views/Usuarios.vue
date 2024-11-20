@@ -24,10 +24,13 @@
             <template v-slot:body-cell-opciones="props">
                 <q-td :props="props" class="tabla-cell opciones">
                     <q-btn icon="edit" color="primary" flat @click="editarUsuario(props.row)" class="q-mr-sm" />
-                    <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'" color="negative" flat
+                    <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'"
+                        :color="props.row.estado === 1 ? 'negative' : 'positive'" flat
                         @click="mostrarModalConfirmacion(props.row)" />
                 </q-td>
             </template>
+
+
         </q-table>
 
         <q-dialog v-model="modalConfirmarEstado">
@@ -221,6 +224,32 @@ const putUsuarios = async () => {
         console.log('Error al editar el usuario:', error.response ? error.response.data : error);
     }
 }
+const confirmarCambioEstado = async () => {
+  if (!usuarioSeleccionado.value) return;
+
+  const Usuario = usuarioSeleccionado.value;
+  Usuario.estado = Usuario.estado === 1 ? 0 : 1; 
+  
+  try {
+    const response = await putData(`usuarios/${Usuario._id}`, { estado: Usuario.estado });
+    console.log('Estado actualizado con éxito:', response);
+    
+    await getUsuarios();
+    modalConfirmarEstado.value = false;
+  } catch (error) {
+    console.log('Error al actualizar el estado:', error.response ? error.response.data : error);
+    
+  }
+
+   
+};
+
+const cancelarCambioEstado = () => {
+  modalConfirmarEstado.value = false;  
+};
+
+
+
 </script>
 
 <style scoped>
