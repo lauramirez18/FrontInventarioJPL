@@ -61,7 +61,7 @@
             </q-card>
         </q-dialog>
 
-    
+
         <q-dialog v-model="modalEditarUsuario" persistent>
             <q-card>
                 <q-card-section>
@@ -202,6 +202,8 @@ const postUsuario = async () => {
     }
 }
 
+
+
 const editarUsuario = (usuario) => {
     usuarioEditar.value = usuario;
     modalEditarUsuario.value = true;
@@ -213,13 +215,28 @@ const cerrarModalEditar = () => {
 
 const putUsuarios = async () => {
     try {
-        const response = await putData(`usuarios/${usuarioEditar.value._id}`, usuarioEditar.value);
+        const response = await putData(`usuarios / ${ usuarioEditar.value._id }`, usuarioEditar.value);
         console.log('Usuario editado con éxito', response);
         modalEditarUsuario.value = false;
         await getUsuarios();
     } catch (error) {
         console.log('Error al editar el usuario:', error.response ? error.response.data : error);
     }
+}
+
+const confirmarCambioEstado = async () => {
+    if (!usuarioSeleccionado.value) return;
+
+    const usuario = usuarioSeleccionado.value;
+    usuario.estado = usuario.estado === 1 ? 0 : 1;
+
+    console.log('Estado cambia para', usuario);
+    await putUsuarios(usuario);
+    modalConfirmarEstado.value = false;
+};
+
+const cancelarCambioEstado = () => {
+    modalConfirmarEstado.value = false;
 }
 </script>
 

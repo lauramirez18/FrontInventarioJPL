@@ -23,7 +23,7 @@
         <q-td :props="props" class="tabla-cell opciones">
           <q-btn icon="edit" color="primary" flat @click="editarProveedor(props.row)" class="q-mr-sm" />
           <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'" color="negative" flat
-            @click="mostrarModalConfirmacion(props.row)" />
+            @click="  mostrarModalConfirmacion(props.row)" />
         </q-td>
       </template>
     </q-table>
