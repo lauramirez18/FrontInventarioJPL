@@ -1,9 +1,11 @@
 <template>
     <q-page padding>
-        <h4 class="text-center  text-weight-bold">Categorias</h4>
+        <h4 class="text-center text-weight-bold">Categorias</h4>
         <hr>
-        <q-table class="tabla-clientes" :rows="rows" :columns="columns" row-key="name">
 
+        <q-btn label="+ Registrar" @click="abrirFormulario" class="q-mb-md" />
+
+        <q-table class="tabla-clientes" :rows="rows" :columns="columns" row-key="name">
             <template v-slot:header="props">
                 <tr>
                     <th v-for="col in props.cols" :key="col.name" :class="'tabla-header'">
@@ -11,12 +13,6 @@
                     </th>
                 </tr>
             </template>
-
-            <template v-slot:body-cell-categoria="props">
-  <q-td :props="props" class="q-pa-sm">
-    <span>{{ props.row.categoria.nombre }}</span>
-  </q-td>
-</template>
 
             <template v-slot:body-cell-estado="props">
                 <q-td :props="props" class="q-pa-sm">
@@ -27,13 +23,13 @@
 
             <template v-slot:body-cell-opciones="props">
                 <q-td :props="props" class="tabla-cell opciones">
-                    <q-btn icon="edit" color="primary" flat @click="editarProveedor(props.row)" class="q-mr-sm" />
-
+                    <q-btn icon="edit" color="primary" flat @click="editarCategoria(props.row)" class="q-mr-sm" />
                     <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'" color="negative" flat
                         @click="mostrarModalConfirmacion(props.row)" />
                 </q-td>
             </template>
         </q-table>
+
         <q-dialog v-model="modalConfirmarEstado">
             <q-card>
                 <q-card-section>
@@ -47,16 +43,43 @@
             </q-card>
         </q-dialog>
 
+        <q-dialog v-model="modalAgregarCategoria" persistent>
+            <q-card>
+                <q-card-section>
+                    <div class="text-h6">Agregar Nueva Categoria</div>
+                    <q-input v-model="nuevaCategoria.nombre" label="Nombre" filled />
+                    <q-input v-model="nuevaCategoria.descripcion" label="Descripción" filled />
+                    <q-input v-model="nuevaCategoria.estado" label="Estado" filled type="number" min="0" max="1" />
+                </q-card-section>
 
+                <q-card-actions>
+                    <q-btn label="Cancelar" color="secondary" flat @click="cerrarFormulario" />
+                    <q-btn label="Guardar" color="primary" flat @click="postCategoria" />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
+
+        <q-dialog v-model="modalEditarCategoria" persistent>
+            <q-card>
+                <q-card-section>
+                    <div class="text-h6">Editar Categoria</div>
+                    <q-input v-model="categoriaEditar.nombre" label="Nombre" filled />
+                    <q-input v-model="categoriaEditar.descripcion" label="Descripción" filled />
+                    <q-input v-model="categoriaEditar.estado" label="Estado" filled type="number" min="0" max="1" />
+                </q-card-section>
+
+                <q-card-actions>
+                    <q-btn label="Cancelar" color="secondary" flat @click="cerrarModalEditar" />
+                    <q-btn label="Guardar Cambios" color="primary" flat @click="putCategoria" />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
     </q-page>
-
-
-
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getData } from '../services/apiClient.js'
+import { getData, postData, putData } from '../services/apiClient.js'
 import { useAuthStore } from '../store/useAuth.js'
 
 const columns = ref([
@@ -68,14 +91,12 @@ const columns = ref([
         sortable: true,
         style: "font-weight: bold;",
     },
-
     {
         name: "descripcion",
         align: "center",
-        label: "descripcion",
+        label: "Descripción",
         field: "descripcion",
         sortable: true,
-        
     },
     {
         name: "estado",
@@ -94,19 +115,34 @@ const columns = ref([
     },
 ])
 
-onMounted(async () => {
-    await getDataFromApi()
-})
-
-
 const rows = ref([]);
 const modalConfirmarEstado = ref(false); 
-const usuarioSeleccionado = ref(null);
+const modalAgregarCategoria = ref(false);
+const modalEditarCategoria = ref(false);
+
+const nuevaCategoria = ref({
+    nombre: '',
+    descripcion: '',
+    estado: 1,
+});
+
+const categoriaEditar = ref({
+    _id: '',
+    nombre: '',
+    descripcion: '',
+    estado: 1,
+});
+
+const categoriaSeleccionada = ref(null);
 const authStore = useAuthStore()
 
-async function getDataFromApi() {
+onMounted(async () => {
+    await getCategorias()
+})
+
+async function getCategorias() {
     const token = authStore.getToken();
-    console.log("toke recuperado del store", token)
+    console.log("Token recuperado del store", token)
     if (!token) {
         console.log('Token no encontrado')
         return
@@ -125,13 +161,59 @@ async function getDataFromApi() {
     }
 }
 
-const mostrarModalConfirmacion = (usuario) => {
-    usuarioSeleccionado.value = usuario; 
+const mostrarModalConfirmacion = (categoria) => {
+    categoriaSeleccionada.value = categoria; 
     modalConfirmarEstado.value = true;      
 };
 
+const abrirFormulario = () => {
+    modalAgregarCategoria.value = true;
+};
 
+const cerrarFormulario = () => {
+    modalAgregarCategoria.value = false;
+    resetFormulario()
+}
 
+const resetFormulario = () => {
+    nuevaCategoria.value = {
+        nombre: '',
+        descripcion: '',
+        estado: 1,
+    }
+}
+
+const postCategoria = async () => {
+    try {
+        const response = await postData('categorias', nuevaCategoria.value)
+        console.log('Categoria creada con éxito', response);
+        modalAgregarCategoria.value = false;
+        await getCategorias();
+        resetFormulario();
+    } catch (error) {
+        console.log('Error al crear la categoria:', error.response ? error.response.data : error)
+    }
+}
+
+const editarCategoria = (categoria) => {
+    categoriaEditar.value = categoria
+    modalEditarCategoria.value = true;
+}
+
+const cerrarModalEditar = () => {
+    modalEditarCategoria.value = false;
+}
+
+const putCategoria = async () => {
+    try {
+        const response = await putData(`categorias/${categoriaEditar.value._id}`, categoriaEditar.value);
+        console.log('Categoria editada con éxito', response);
+        modalEditarCategoria.value = false;
+        await getCategorias();
+    } catch (error) {
+        console.log('Error al actualizar la categoria:', error.response ? error.response.data : error)
+    }
+}
 </script>
 
 <style scoped>
@@ -151,7 +233,6 @@ const mostrarModalConfirmacion = (usuario) => {
     text-align: center;
 }
 
-
 .tabla-cell.opciones button {
     padding: 5px 10px;
     border: none;
@@ -160,4 +241,3 @@ const mostrarModalConfirmacion = (usuario) => {
     border-radius: 4px;
 }
 </style>
-    
