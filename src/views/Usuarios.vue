@@ -202,8 +202,6 @@ const postUsuario = async () => {
     }
 }
 
-
-
 const editarUsuario = (usuario) => {
     usuarioEditar.value = usuario;
     modalEditarUsuario.value = true;
@@ -215,7 +213,7 @@ const cerrarModalEditar = () => {
 
 const putUsuarios = async () => {
     try {
-        const response = await putData(`usuarios / ${ usuarioEditar.value._id }`, usuarioEditar.value);
+        const response = await putData(`usuarios/${usuarioEditar.value._id}`, usuarioEditar.value);
         console.log('Usuario editado con éxito', response);
         modalEditarUsuario.value = false;
         await getUsuarios();
@@ -230,14 +228,22 @@ const confirmarCambioEstado = async () => {
     const usuario = usuarioSeleccionado.value;
     usuario.estado = usuario.estado === 1 ? 0 : 1;
 
-    console.log('Estado cambia para', usuario);
-    await putUsuarios(usuario);
-    modalConfirmarEstado.value = false;
+    try {
+        const response = await putData(`usuarios/${usuario._id}`, { estado: usuario.estado });
+        console.log('Estado cambiado con éxito', response);
+        await getUsuarios();
+        modalConfirmarEstado.value = false;
+    } catch (error) {
+        console.log('Error al cambiar el estado del usuario:', error.response ? error.response.data : error);
+    }
 };
 
 const cancelarCambioEstado = () => {
     modalConfirmarEstado.value = false;
-}
+}   
+
+
+
 </script>
 
 <style scoped>

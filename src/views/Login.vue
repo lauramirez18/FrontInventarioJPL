@@ -108,7 +108,7 @@
     border-radius: 5px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     background-color: #fff;
-    margin: 30px auto;
+    margin: 10px auto;
   }
 
   .header-login{
@@ -117,10 +117,11 @@
     align-items: center;
     height: 100px;
     background-color: rgb(2, 21, 38);
-    font-size: 40px;
+    font-size: 35px;
     color: white;
     border-radius: 12px 12px 0 0;
     font-weight: 500;
+  
 
   }
 
@@ -140,7 +141,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    margin: 20px;
+    margin: 17px;
     
   }
 
@@ -162,7 +163,7 @@
     border-radius: 8px;
     display: flex;
     
-    margin: 30px 30px 10px;
+    margin: 20px 30px 5px;
     background-color: rgb(2, 21, 38);
     color: white;
     font-weight: 600;
