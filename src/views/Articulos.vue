@@ -1,9 +1,11 @@
 <template>
     <q-page padding>
-        <h4 class="text-center  text-weight-bold">Articulos</h4>
+        <h4 class="text-center text-weight-bold">Articulos</h4>
         <hr>
-        <q-table class="tabla-clientes" :rows="rows" :columns="columns" row-key="name">
 
+        <q-btn label="+ Registrar" @click="abrirFormulario" class="q-mb-md" />
+
+        <q-table class="tabla-clientes" :rows="rows" :columns="columns" row-key="name">
             <template v-slot:header="props">
                 <tr>
                     <th v-for="col in props.cols" :key="col.name" :class="'tabla-header'">
@@ -11,12 +13,6 @@
                     </th>
                 </tr>
             </template>
-
-            <template v-slot:body-cell-categoria="props">
-  <q-td :props="props" class="q-pa-sm">
-    <span>{{ props.row.categoria.nombre }}</span>
-  </q-td>
-</template>
 
             <template v-slot:body-cell-estado="props">
                 <q-td :props="props" class="q-pa-sm">
@@ -27,13 +23,13 @@
 
             <template v-slot:body-cell-opciones="props">
                 <q-td :props="props" class="tabla-cell opciones">
-                    <q-btn icon="edit" color="primary" flat @click="editarProveedor(props.row)" class="q-mr-sm" />
-
+                    <q-btn icon="edit" color="primary" flat @click="editarArticulo(props.row)" class="q-mr-sm" />
                     <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'" color="negative" flat
                         @click="mostrarModalConfirmacion(props.row)" />
                 </q-td>
             </template>
         </q-table>
+
         <q-dialog v-model="modalConfirmarEstado">
             <q-card>
                 <q-card-section>
@@ -48,11 +44,44 @@
         </q-dialog>
 
 
+        <q-dialog v-model="modalAgregarUsuario" persistent>
+            <q-card>
+                <q-card-section>
+                    <div class="text-h6">Agregar Nuevo Usuario</div>
+                    <q-input v-model="nuevoUsuario.nombre" label="Nombre" filled />
+                    <q-input v-model="nuevoUsuario.email" label="Email" filled />
+                    <q-input type="password" v-model="nuevoUsuario.password" label="Contraseña" filled />
+                    <q-input v-model="nuevoUsuario.estado" label="Estado" filled type="number" min="0" max="1" />
+                </q-card-section>
+
+                <q-card-actions>
+                    <q-btn label="Cancelar" color="secondary" flat @click="cerrarFormulario" />
+                    <q-btn label="Guardar" color="primary" flat @click="postArticulo" />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
+
+
+        <q-dialog v-model="modalEditarUsuario" persistent>
+            <q-card>
+                <q-card-section>
+                    <div class="text-h6">Editar Usuario</div>
+                    <q-input v-model="usuarioEditar.nombre" label="Nombre" filled />
+                    <q-input v-model="usuarioEditar.email" label="Email" filled />
+                    <q-input type="password" v-model="usuarioEditar.password" label="Contraseña" filled />
+                    <q-input v-model="usuarioEditar.estado" label="Estado" filled type="number" min="0" max="1" />
+                </q-card-section>
+
+                <q-card-actions>
+                    <q-btn label="Cancelar" color="secondary" flat @click="cerrarModalEditar" />
+                    <q-btn label="Guardar Cambios" color="primary" flat @click="putArticulos" />
+                </q-card-actions>
+            </q-card>
+        </q-dialog>
+
     </q-page>
-
-
-
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue'
@@ -108,43 +137,133 @@ const columns = ref([
     },
 ])
 
-onMounted(async () => {
-    await getDataFromApi()
-})
-
-
 const rows = ref([]);
-const modalConfirmarEstado = ref(false); 
-const usuarioSeleccionado = ref(null);
+const modalConfirmarEstado = ref(false);
+const modalAgregarArticulo = ref(false);
+const modalEditarArticulo = ref(false);
+
+const nuevoArticulo = ref({
+    nombre: '',
+    precio: '',
+    stock: '',
+    categoria: '',
+    estado: 1,
+});
+
+const articulosEditar = ref({
+    _id: '',
+    nombre: '',
+    precio: '',
+    stock: '',
+    categoria: '',
+    estado: 1,
+});
+
+const articuloSeleccionado = ref(null);
 const authStore = useAuthStore()
 
-async function getDataFromApi() {
-    const token = authStore.getToken();
-    console.log("toke recuperado del store", token)
-    if (!token) {
-        console.log('Token no encontrado')
-        return
-    }
+onMounted(async () => {
+    await getArticulos()
+})
 
-    try {
-        const response = await getData('articulos')
-        if (response && Array.isArray(response)) {
-            console.log('response', response)
-            rows.value = response
-        } else {
-            console.log('La respuesta no contiene los datos esperados')
-        }
-    } catch (error) {
-        console.log('Error al obtener los datos:', error.response ? error.response.data : error)
+async function getArticulos() {
+   const token = authStore.getToken();
+   console.log("token recuperado del store", token);
+   if(!token) {
+    console.log("token no encontrado");
+    return
+   }
+
+   try{
+    const response = await getData('articulos')
+    if(response && Array.isArray(response)){
+        rows.value = response;
+    } else{ 
+        console.log("La respuesta no contiene los datos esperados");    
+    }
+   } catch (error) {
+       console.log("Error al obtener los articulos", error.response ? error.response.data : error);
+   }   
+}
+
+const mostrarModalConfirmacion = (articulo) => {
+    articuloSeleccionado.value = articulo;
+    modalConfirmarEstado.value = true;
+}
+
+const abrirFormulario = () => {
+    modalAgregarArticulo.value = true;
+}
+
+const cerrarFormulario = () => {
+    modalAgregarArticulo.value = false;
+    resetFormulario();
+}
+
+const resetFormulario = () => {
+    nuevoArticulo.value = {
+        nombre: '',
+        precio: '',
+        stock: '',
+        categoria: '',
+        estado: 1,
+    };
+}
+
+const postArticulo = async () => {
+    try{
+        const response = await postData('articulos', nuevoArticulo.value);
+        console.log('Articulo creado con exito', response);
+        modalAgregarArticulo.value = false;
+        await getArticulos();
+        resetFormulario();
+    } catch (erro) {
+        console.log('Error al crear el articulo', error.response ? error.response.data : error);
     }
 }
 
-const mostrarModalConfirmacion = (usuario) => {
-    usuarioSeleccionado.value = usuario; 
-    modalConfirmarEstado.value = true;      
-};
+const editarArticulo = (articulo) =>{
+    articulosEditar.value = articulo
+    modalEditarArticulo.value = true;
+}
 
+const cerrarModalEditar = () => {
+    modalEditarArticulo.value = false;
+    resetFormulario();
+}
 
+const putArticulos = async () =>{
+    try{
+        const response = await putData(`articulos/${articulosEditar.value._id}`, articulosEditar.value);
+        console.log("Articulo actualizado con exito", response);
+        await getArticulos();
+        modalConfirmarEstado.value = false;
+    } catch (error) {
+        console.log("Error al actualizar el articulo", error.response ? error.response.data : error);
+    }
+}
+
+const confirmarCambioEstado = async () =>{
+    if (!articuloSeleccionado.value) return;
+
+    const articulo = articuloSeleccionado.value;
+    articulo.estado = articulo.estado === 1 ? 0 : 1;
+
+    try{
+        const response = await putData(`articulos/${articulo._id}`, { estado: articulo.estado });
+        console.log('articulo actualizado con exito', response);
+        await getArticulos();
+        modalConfirmarEstado.value = false;
+    } catch (error) {
+        console.log('Error al actualizar el articulo', error.response ? error.response.data : error);
+    }
+}
+
+const cancelarCambioEstado = () => {
+    modalConfirmarEstado.value = false;
+}
+
+   
 
 </script>
 
