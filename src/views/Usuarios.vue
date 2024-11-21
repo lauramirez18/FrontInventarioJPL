@@ -25,13 +25,10 @@
             <template v-slot:body-cell-opciones="props">
                 <q-td :props="props" class="tabla-cell opciones">
                     <q-btn icon="edit" color="primary" flat @click="editarUsuario(props.row)" class="q-mr-sm" />
-                    <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'"
-                        :color="props.row.estado === 1 ? 'negative' : 'positive'" flat
+                    <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'" color="negative" flat
                         @click="mostrarModalConfirmacion(props.row)" />
                 </q-td>
             </template>
-
-
         </q-table>
 
         <q-dialog v-model="modalConfirmarEstado">
@@ -73,8 +70,7 @@
             </q-card>
         </q-dialog>
 
-
-
+    
         <q-dialog v-model="modalEditarUsuario" persistent>
             <q-card>
                 <div class="text-h6">Editar Usuario</div>
@@ -306,77 +302,30 @@ const putUsuarios = async () => {
 
     } catch (error) {
         console.log('Error al editar el usuario:', error.response ? error.response.data : error);
-
-
-        if (error.response && error.response.data && error.response.data.errores) {
-            const errores = error.response.data.errores;
-            console.log('Errores del backend:', errores);
-
-            errores.forEach((err) => {
-                if (err.msg) {
-                    Notify.create({
-                        message: err.msg,
-                        color: 'red',
-                        icon: 'error',
-                        position: 'top',
-                        timeout: 3000,
-                    });
-                } else {
-                    Notify.create({
-                        message: 'Error desconocido',
-                        color: 'red',
-                        icon: 'error',
-                        position: 'top',
-                        timeout: 3000,
-                    });
-                }
-            });
-        } else {
-
-            Notify.create({
-                message: 'Hubo un error al editar el usuario. Inténtelo nuevamente.',
-                color: 'red',
-                icon: 'error',
-                position: 'top',
-                timeout: 3000,
-            });
-        }
     }
 }
-
 const confirmarCambioEstado = async () => {
     if (!usuarioSeleccionado.value) return;
 
-    const Usuario = usuarioSeleccionado.value;
-    Usuario.estado = Usuario.estado === 1 ? 0 : 1;
+  const Usuario = usuarioSeleccionado.value;
+  Usuario.estado = Usuario.estado === 1 ? 0 : 1; 
+  
+  try {
+    const response = await putData(`usuarios/${Usuario._id}`, { estado: Usuario.estado });
+    console.log('Estado actualizado con éxito:', response);
+    
+    await getUsuarios();
+    modalConfirmarEstado.value = false;
+  } catch (error) {
+    console.log('Error al actualizar el estado:', error.response ? error.response.data : error);
+    
+  }
 
-    try {
-        const response = await putData(`usuarios/${Usuario._id}`, { estado: Usuario.estado });
-        console.log('Estado actualizado con éxito:', response);
-        Notify.create({
-            message: 'Estado actualizado con éxito',
-            color: 'green',
-            icon: 'check_circle',
-            position: 'top',
-            timeout: 3000,
-        });
-        await getUsuarios();
-        modalConfirmarEstado.value = false;
-    } catch (error) {
-        console.log('Error al actualizar el estado:', error.response ? error.response.data : error);
-        Notify.create({
-            message: 'Error al actualizar el estado',
-            color: 'red',
-            icon: 'error',
-            position: 'top',
-            timeout: 3000,
-        });
-    }
+   
 };
 
-
 const cancelarCambioEstado = () => {
-    modalConfirmarEstado.value = false;
+  modalConfirmarEstado.value = false;  
 };
 
 

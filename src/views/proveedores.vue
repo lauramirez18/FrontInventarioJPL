@@ -24,10 +24,11 @@
 
       <template v-slot:body-cell-opciones="props">
         <q-td :props="props" class="tabla-cell opciones">
-          <q-btn icon="edit" color="primary" flat @click="infoProveedorEditar(props.row)" class="q-mr-sm" />
+          <q-btn icon="edit" color="primary" flat @click="editarProveedor(props.row)" class="q-mr-sm" />
           <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'"
             :color="props.row.estado === 1 ? 'negative' : 'positive'" flat
             @click="mostrarModalConfirmacion(props.row)" />
+>>>>>>> 162a3a5cf069a01a9462275c281a02f56e3d150d
         </q-td>
       </template>
 
