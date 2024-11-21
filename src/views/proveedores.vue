@@ -28,7 +28,7 @@
           <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'"
             :color="props.row.estado === 1 ? 'negative' : 'positive'" flat
             @click="mostrarModalConfirmacion(props.row)" />
->>>>>>> 162a3a5cf069a01a9462275c281a02f56e3d150d
+
         </q-td>
       </template>
 
