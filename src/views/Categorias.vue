@@ -49,7 +49,6 @@
                     <div class="text-h6">Agregar Nueva Categoria</div>
                     <q-input v-model="nuevaCategoria.nombre" label="Nombre" filled />
                     <q-input v-model="nuevaCategoria.descripcion" label="Descripción" filled />
-                    <q-input v-model="nuevaCategoria.estado" label="Estado" filled type="number" min="0" max="1" />
                 </q-card-section>
 
                 <q-card-actions>
