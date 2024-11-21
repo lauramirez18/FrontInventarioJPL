@@ -115,7 +115,7 @@ const columns = ref([
 ])
 
 const rows = ref([]);
-const modalConfirmarEstado = ref(false); 
+const modalConfirmarEstado = ref(false);
 const modalAgregarCategoria = ref(false);
 const modalEditarCategoria = ref(false);
 
@@ -213,6 +213,26 @@ const putCategoria = async () => {
         console.log('Error al actualizar la categoria:', error.response ? error.response.data : error)
     }
 }
+
+const confirmarCambioEstado = async () => {
+    if (!categoriaSeleccionada.value) return;
+
+    const categoria = categoriaSeleccionada.value;
+    categoria.estado = categoria.estado === 1 ? 0 : 1;
+
+    try {
+        const response = await putData(`categorias/${categoria._id}`, { estado: categoria.estado });
+        console.log('Estado de la categoría actualizado con éxito', response);
+        await getCategorias();
+        modalConfirmarEstado.value = false;
+    } catch (error) {
+        console.log('Error al actualizar el estado de la categoría:', error.response ? error.response.data : error);
+    }
+}
+
+const cancelarCambioEstado = () => {
+    modalConfirmarEstado.value = false;
+}
 </script>
 
 <style scoped>
@@ -230,13 +250,5 @@ const putCategoria = async () => {
     color: white;
     padding: 12px;
     text-align: center;
-}
-
-.tabla-cell.opciones button {
-    padding: 5px 10px;
-    border: none;
-    color: white;
-    cursor: pointer;
-    border-radius: 4px;
 }
 </style>
