@@ -72,7 +72,7 @@
                     <q-input v-model="usuarioEditar.nombre" label="Nombre" filled />
                     <q-input v-model="usuarioEditar.email" label="Email" filled />
                     <q-input type="password" v-model="usuarioEditar.password" label="Contraseña" filled />
-                    <q-input v-model="usuarioEditar.estado" label="Estado" filled type="number" min="0" max="1" />
+                   
                 </q-card-section>
 
                 <q-card-actions>

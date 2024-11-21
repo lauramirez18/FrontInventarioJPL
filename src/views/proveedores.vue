@@ -2,6 +2,7 @@
   <q-page padding>
     <h4 class="text-center text-weight-bold">Proveedores</h4>
     <hr>
+    <q-btn label="+ Registrar" @click="abrirFormulario" class="q-mb-md" />  
     <q-table class="tabla-proovedores" :rows="rows" :columns="columns" row-key="name">
 
       <template v-slot:header="props">
@@ -44,23 +45,24 @@
     </q-dialog>
 
 
-    <q-dialog v-model="modalEditar">
+    <q-dialog v-model="modalEditar" persistent>
       <q-card>
         <q-card-section>
           <div class="text-h6">Editar Proveedor</div>
         </q-card-section>
 
         <q-card-section>
-          <q-input v-model="datosProveedor.nombre" label="Nombre" outlined dense />
-          <q-input v-model="datosProveedor.identificacion" label="Identificación" outlined dense />
-          <q-input v-model="datosProveedor.direccion" label="Dirección" outlined dense />
-          <q-input v-model="datosProveedor.telefono" label="Teléfono" outlined dense />
-          <q-input v-model="datosProveedor.email" label="Email" outlined dense />
+          <q-input v-model="proveedorEditar.nombre" label="Nombre" outlined dense />
+          <q-input v-model="proveedorEditar.identificacion" label="Identificación" outlined dense />
+          <q-input v-model="proveedorEditar.direccion" label="Dirección" outlined dense />
+          <q-input v-model="proveedorEditar.telefono" label="Teléfono" outlined dense />
+          <q-input v-model="proveedorEditar.email" label="Email" outlined dense />
+          
         </q-card-section>
 
         <q-card-actions>
-          <q-btn label="Cancelar" color="secondary" flat @click="modalEditar = false" />
-          <q-btn label="Guardar" color="primary" flat @click="putProveedores()" />
+          <q-btn label="Cancelar" color="secondary" flat @click="cerrarModalEditar" />
+          <q-btn label="Guardar" color="primary" flat @click="putProveedores" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -69,7 +71,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getData, putData } from '../services/apiClient.js';
+import { getData, putData, postData } from '../services/apiClient.js';
 import { useAuthStore } from '../store/useAuth.js';
 
 const columns = ref([
@@ -88,6 +90,16 @@ const modalEditar = ref(false);
 let datosProveedor = ({});
 const modalConfirmarEstado = ref(false);
 const proveedorSeleccionado = ref(null);
+
+const proveedorEditar = ref({
+  _id: '',
+  nombre: '',
+  identificacion: '',
+  direccion: '',
+  telefono: '',
+  email: '',
+  estado: 1,
+});
 
 
 async function getProveedores() {
