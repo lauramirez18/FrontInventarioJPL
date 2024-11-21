@@ -13,6 +13,11 @@
                     </th>
                 </tr>
             </template>
+            <template v-slot:body-cell-categoria="props">
+  <q-td :props="props" class="q-pa-sm">
+    <span>{{ props.row.categoria.nombre }}</span>
+  </q-td>
+</template>
 
             <template v-slot:body-cell-estado="props">
                 <q-td :props="props" class="q-pa-sm">
