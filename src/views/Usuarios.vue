@@ -37,7 +37,7 @@
             <q-card>
                 <div class="text-h6">¿Estás seguro de cambiar el estado?</div>
                 <q-card-section>
-                   
+
                 </q-card-section>
 
                 <q-card-actions>
@@ -50,7 +50,7 @@
             <q-card>
                 <div class="text-h6">Agregar Nuevo Usuario</div>
                 <q-card-section>
-                    
+
 
                     <q-input v-model="nuevoUsuario.nombre" label="Nombre" filled
                         :rules="[val => val && val.length > 0 || 'El nombre es obligatorio']" />
@@ -72,14 +72,14 @@
             </q-card>
         </q-dialog>
 
-    
+
         <q-dialog v-model="modalEditarUsuario" persistent>
             <q-card>
                 <div class="text-h6">Editar Usuario</div>
-                <q-card-section >
-                   
-                    <q-input v-model="usuarioEditar.nombre" label="Nombre" filled 
-                    :rules="[val => val && val.length > 0 || 'El nombre es obligatorio']"  />
+                <q-card-section>
+
+                    <q-input v-model="usuarioEditar.nombre" label="Nombre" filled
+                        :rules="[val => val && val.length > 0 || 'El nombre es obligatorio']" />
                     <q-input v-model="usuarioEditar.email" label="Email" filled :rules="[
                         val => val && val.length > 0 || 'El email es obligatorio',
                         val => /.+@.+\..+/.test(val) || 'El email debe ser válido'
@@ -309,25 +309,25 @@ const putUsuarios = async () => {
 const confirmarCambioEstado = async () => {
     if (!usuarioSeleccionado.value) return;
 
-  const Usuario = usuarioSeleccionado.value;
-  Usuario.estado = Usuario.estado === 1 ? 0 : 1; 
-  
-  try {
-    const response = await putData(`usuarios/${Usuario._id}`, { estado: Usuario.estado });
-    console.log('Estado actualizado con éxito:', response);
-    
-    await getUsuarios();
-    modalConfirmarEstado.value = false;
-  } catch (error) {
-    console.log('Error al actualizar el estado:', error.response ? error.response.data : error);
-    
-  }
+    const Usuario = usuarioSeleccionado.value;
+    Usuario.estado = Usuario.estado === 1 ? 0 : 1;
 
-   
+    try {
+        const response = await putData(`usuarios/${Usuario._id}`, { estado: Usuario.estado });
+        console.log('Estado actualizado con éxito:', response);
+
+        await getUsuarios();
+        modalConfirmarEstado.value = false;
+    } catch (error) {
+        console.log('Error al actualizar el estado:', error.response ? error.response.data : error);
+
+    }
+
+
 };
 
 const cancelarCambioEstado = () => {
-  modalConfirmarEstado.value = false;  
+    modalConfirmarEstado.value = false;
 };
 
 
@@ -335,10 +335,10 @@ const cancelarCambioEstado = () => {
 </script>
 
 <style scoped>
-
-*{
-padding: 0;
+* {
+    padding: 0;
 }
+
 .tabla-views {
     margin: 30px auto;
     max-width: 1100px;
@@ -395,7 +395,7 @@ padding: 0;
 }
 
 .q-card {
-    
+
     border-radius: 5px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     background-color: #fff;
@@ -404,7 +404,7 @@ padding: 0;
 
 }
 
-.q-card-section{
+.q-card-section {
     background-color: bisque;
     padding: 0;
 }
@@ -413,7 +413,7 @@ padding: 0;
     text-align: center;
     font-size: 30px;
     font-weight: bold;
-     color: white; 
+    color: white;
     background-color: rgb(85, 89, 92);
     padding: 30px;
 }
@@ -422,15 +422,13 @@ padding: 0;
 
 .q-input {
     display: flex;
-   
+
     padding: 20px 33px 22px;
 }
- 
-.q-card__actions{
+
+.q-card__actions {
     display: flex;
     padding-top: 20px;
     justify-content: center;
 }
-
-
 </style>

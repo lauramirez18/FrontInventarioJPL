@@ -14,10 +14,10 @@
                 </tr>
             </template>
             <template v-slot:body-cell-categoria="props">
-  <q-td :props="props" class="q-pa-sm">
-    <span>{{ props.row.categoria.nombre }}</span>
-  </q-td>
-</template>
+                <q-td :props="props" class="q-pa-sm">
+                    <span>{{ props.row.categoria.nombre }}</span>
+                </q-td>
+            </template>
 
             <template v-slot:body-cell-estado="props">
                 <q-td :props="props" class="q-pa-sm">
@@ -49,14 +49,15 @@
         </q-dialog>
 
 
-        <q-dialog v-model="modalAgregarUsuario" persistent>
+        <q-dialog v-model="modalAgregarArticulo" persistent>
             <q-card>
                 <q-card-section>
-                    <div class="text-h6">Agregar Nuevo Usuario</div>
-                    <q-input v-model="nuevoUsuario.nombre" label="Nombre" filled />
-                    <q-input v-model="nuevoUsuario.email" label="Email" filled />
-                    <q-input type="password" v-model="nuevoUsuario.password" label="Contraseña" filled />
-                    <q-input v-model="nuevoUsuario.estado" label="Estado" filled type="number" min="0" max="1" />
+                    <div class="text-h6">Agregar Nuevo Articulo </div>
+                    <q-input v-model="nuevoArticulo.nombre" label="Nombre" filled />
+                    <q-input v-model="nuevoArticulo.precio" label="Precio" filled />
+                    <q-input v-model="nuevoArticulo.stock" label="Stock" filled />
+                    <q-input v-model="nuevoArticulo.categoria" label="Categoria" filled />
+                    <q-input v-model="nuevoArticulo.estado" label="Estado" filled type="number" min="0" max="1" />
                 </q-card-section>
 
                 <q-card-actions>
@@ -67,14 +68,15 @@
         </q-dialog>
 
 
-        <q-dialog v-model="modalEditarUsuario" persistent>
+        <q-dialog v-model="modalEditarArticulo" persistent>
             <q-card>
                 <q-card-section>
-                    <div class="text-h6">Editar Usuario</div>
-                    <q-input v-model="usuarioEditar.nombre" label="Nombre" filled />
-                    <q-input v-model="usuarioEditar.email" label="Email" filled />
-                    <q-input type="password" v-model="usuarioEditar.password" label="Contraseña" filled />
-                    <q-input v-model="usuarioEditar.estado" label="Estado" filled type="number" min="0" max="1" />
+                    <div class="text-h6">Editar </div>
+                    <q-input v-model="articulosEditar.nombre" label="Nombre" filled />
+                    <q-input v-model="articulosEditar.precio" label="Precio" filled />
+                    <q-input v-model="articulosEditar.stock" label="Stock" filled />
+                    <q-input v-model="articulosEditar.categoria" label="Categoria" filled />
+                    <q-input v-model="articulosEditar.estado" label="Estado" filled type="number" min="0" max="1" />
                 </q-card-section>
 
                 <q-card-actions>
@@ -89,9 +91,10 @@
 
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { getData } from '../services/apiClient.js'
 import { useAuthStore } from '../store/useAuth.js'
+import { Notify } from 'quasar';
 
 const columns = ref([
     {
@@ -109,7 +112,7 @@ const columns = ref([
         label: "Precio",
         field: "precio",
         sortable: true,
-        
+
     },
     {
         name: "stock",
@@ -167,28 +170,36 @@ const articulosEditar = ref({
 const articuloSeleccionado = ref(null);
 const authStore = useAuthStore()
 
+const formValido = computed(() => {
+
+    return nuevoArticulo.value.nombre &&
+        nuevoArticulo.value.precio &&
+        nuevoArticulo.value.stock &&
+        nuevoArticulo.value.categoria
+});
+
 onMounted(async () => {
     await getArticulos()
 })
 
 async function getArticulos() {
-   const token = authStore.getToken();
-   console.log("token recuperado del store", token);
-   if(!token) {
-    console.log("token no encontrado");
-    return
-   }
-
-   try{
-    const response = await getData('articulos')
-    if(response && Array.isArray(response)){
-        rows.value = response;
-    } else{ 
-        console.log("La respuesta no contiene los datos esperados");    
+    const token = authStore.getToken();
+    console.log("token recuperado del store", token);
+    if (!token) {
+        console.log("token no encontrado");
+        return
     }
-   } catch (error) {
-       console.log("Error al obtener los articulos", error.response ? error.response.data : error);
-   }   
+
+    try {
+        const response = await getData('articulos')
+        if (response && Array.isArray(response)) {
+            rows.value = response;
+        } else {
+            console.log("La respuesta no contiene los datos esperados");
+        }
+    } catch (error) {
+        console.log("Error al obtener los articulos", error.response ? error.response.data : error);
+    }
 }
 
 const mostrarModalConfirmacion = (articulo) => {
@@ -216,47 +227,106 @@ const resetFormulario = () => {
 }
 
 const postArticulo = async () => {
-    try{
+    try {
+        nuevoArticulo.value.nombre = nuevoArticulo.value.nombre.trim();
+        nuevoArticulo.value.precio = nuevoArticulo.value.precio.trim();
+        nuevoArticulo.value.stock = nuevoArticulo.value.stock.trim();
+        nuevoArticulo.value.categoria = nuevoArticulo.value.categoria.trim();
+
         const response = await postData('articulos', nuevoArticulo.value);
         console.log('Articulo creado con exito', response);
         modalAgregarArticulo.value = false;
+
+        Notify.create({
+            message: 'Proveedor registrado exitosamente',
+            color: 'green',
+            icon: 'check_circle',
+            position: 'top',
+            timeout: 3000,
+        })
         await getArticulos();
         resetFormulario();
-    } catch (erro) {
+    } catch (error) {
         console.log('Error al crear el articulo', error.response ? error.response.data : error);
+        if (error.response && error.response.data && error.reponse.data.errores) {
+            const errores = error.response.data.errores;
+
+            errores.foreach((err) => {
+                if (err.msg) {
+                    Notify.create({
+                        message: err.msg,
+                        color: 'red',
+                        icon: 'error',
+                        position: 'top',
+                        timeout: 3000,
+                    })
+                } else {
+                    Notify.create({
+                        message: 'Error desconocido',
+                        color: 'red',
+                        icon: 'error',
+                        position: 'top',
+                        timeout: 3000,
+                    });
+                }
+            })
+        } else {
+
+            Notify.create({
+                message: 'Hubo un error en el registro. Inténtelo nuevamente.',
+                color: 'red',
+                icon: 'error',
+                position: 'top',
+                timeout: 3000,
+            });
+        }
     }
 }
 
-const editarArticulo = (articulo) =>{
+const editarArticulo = (articulo) => {
     articulosEditar.value = articulo
     modalEditarArticulo.value = true;
 }
 
 const cerrarModalEditar = () => {
     modalEditarArticulo.value = false;
-    resetFormulario();
 }
 
-const putArticulos = async () =>{
-    try{
+const putArticulos = async () => {
+    try {
+
+        articulosEditar.value.nombre = articulosEditar.value.nombre.trim();
+        articulosEditar.value.precio = articulosEditar.value.precio.trim();
+        articulosEditar.value.stock = articulosEditar.value.stock.trim();
+
         const response = await putData(`articulos/${articulosEditar.value._id}`, articulosEditar.value);
         console.log("Articulo actualizado con exito", response);
+
+        Notify.create({
+            message: 'Usuario editado con éxito',
+            color: 'green',
+            icon: 'check_circle',
+            position: 'top',
+            timeout: 3000,
+        });
+
+        modalEditarArticulo.value = false;
         await getArticulos();
-        modalConfirmarEstado.value = false;
+
     } catch (error) {
         console.log("Error al actualizar el articulo", error.response ? error.response.data : error);
     }
 }
-
-const confirmarCambioEstado = async () =>{
+const confirmarCambioEstado = async () => {
     if (!articuloSeleccionado.value) return;
 
     const articulo = articuloSeleccionado.value;
     articulo.estado = articulo.estado === 1 ? 0 : 1;
 
-    try{
+    try {
         const response = await putData(`articulos/${articulo._id}`, { estado: articulo.estado });
         console.log('articulo actualizado con exito', response);
+
         await getArticulos();
         modalConfirmarEstado.value = false;
     } catch (error) {
@@ -268,7 +338,7 @@ const cancelarCambioEstado = () => {
     modalConfirmarEstado.value = false;
 }
 
-   
+
 
 </script>
 
