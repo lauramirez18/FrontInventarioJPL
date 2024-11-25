@@ -25,10 +25,12 @@
             <template v-slot:body-cell-opciones="props">
                 <q-td :props="props" class="tabla-cell opciones">
                     <q-btn icon="edit" color="primary" flat @click="editarUsuario(props.row)" class="q-mr-sm" />
-                    <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'" color="negative" flat
+                    <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'"
+                        :color="props.row.estado === 1 ? 'negative' : 'positive'" flat
                         @click="mostrarModalConfirmacion(props.row)" />
                 </q-td>
             </template>
+
         </q-table>
 
         <q-dialog v-model="modalConfirmarEstado">

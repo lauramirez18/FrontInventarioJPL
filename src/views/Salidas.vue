@@ -17,11 +17,33 @@
 
       <template v-slot:body-cell-articulos="props">
   <q-td :props="props" class="q-pa-sm">
-    <!-- Iteramos sobre los artículos y mostramos el nombre -->
     <div v-for="(articulo, index) in props.row.articulos" :key="index">
-      <span>{{ articulo._id.nombre }}</span> <!-- Muestra el nombre del artículo -->
-      <span>{{ articulo.cantidad }}</span> <!-- Muestra la cantidad -->
-      <span>{{ articulo.precio }}</span> <!-- Muestra el precio -->
+      <span>{{ articulo._id ? articulo._id.nombre : articulo.nombre }}</span> 
+    </div>
+  </q-td>
+</template>
+
+<template v-slot:body-cell-precio="props">
+  <q-td :props="props" class="q-pa-sm">
+    <div v-for="(articulo, index) in props.row.articulos" :key="index">
+      <span>{{ articulo._id.precio }}</span> 
+    </div>
+  </q-td>
+</template>
+
+
+<template v-slot:body-cell-fecha="props">
+  <q-td :props="props" class="q-pa-sm">
+    {{ new Date(props.row.createdAt).toLocaleDateString('es-ES') }}
+  </q-td>
+</template>
+
+
+
+<template v-slot:body-cell-cantidad="props">
+  <q-td :props="props" class="q-pa-sm">
+    <div v-for="(articulo, index) in props.row.articulos" :key="index">
+      <span>{{ articulo.cantidad }}</span> 
     </div>
   </q-td>
 </template>
@@ -29,14 +51,14 @@
       
       <template v-slot:body-cell-estado="props">
         <q-td :props="props" class="q-pa-sm">
-          <span style="color: green;" v-if="props.row.estado == 1">Activo</span>
-          <span style="color: red;" v-else>Inactivo</span>
+          <span style="color: green;" v-if="props.row.estado == 1">Aprobado</span>
+          <span style="color: red;" v-else>Anulado</span>
         </q-td>
       </template>
 
       <template v-slot:body-cell-opciones="props">
         <q-td :props="props" class="tabla-cell opciones">
-          <q-btn icon="edit" color="primary" flat @click="editarVenta(props.row)" class="q-mr-sm" />
+          <q-btn icon="edit" color="primary" flat @click="infoVentaEditar(props.row)" class="q-mr-sm" />
           <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'"
             :color="props.row.estado === 1 ? 'negative' : 'positive'" flat
             @click="mostrarModalConfirmacion(props.row)" />
@@ -61,56 +83,148 @@
       </q-card>
     </q-dialog>
     <q-dialog v-model="modalAgregarVenta" persistent>
-      <q-card>
-        <div class="text-h6">Agregar Nuevo Venta</div>
-        <q-card-section>
+  <q-card>
+    <div class="text-h6">Agregar Nueva Venta</div>
+    <q-card-section>
+      
+      <q-input
+        v-model="nuevaVenta.numeroFactura"
+        label="No. Factura"
+        filled
+        type="number"
+        :rules="[val => val && val.length > 0 || 'El número de factura es obligatorio']"
+      />
 
-          <q-input v-model="nuevaVenta.numeroFactura" label="No. Factura" filled
-            :rules="[val => val && val.length > 0 || 'El número de factura es obligatorio']" />
+      <!-- Artículos seleccionados -->
+      <div v-for="(articulo, index) in nuevaVenta.articulos" :key="index" class="q-mb-md">
+        <q-select
+          v-model="articulo.articuloId"
+          :options="articulosDisponibles"
+          label="Seleccionar Artículo"
+          filled
+          option-label="nombre"
+          option-value="_id"
+          @input="actualizarValorArticulo(index)"
+          :rules="[val => val && val.length > 0 || 'Debe seleccionar un artículo']"
+        />
+        
+        <q-input
+          v-model="articulo.cantidad"
+          label="Cantidad"
+          filled
+          type="number"
+          :rules="[val => val && val > 0 || 'La cantidad debe ser mayor a 0']"
+          @input="calcularTotal(index)"
+        />
 
-          <q-input v-model="nuevaVenta.fecha" label="Fecha" filled
-            :rules="[val => val && val.length > 0 || 'La fecha es obligatoria']" />
-            
-          <q-input v-model="nuevaVenta.articulos" label="Articulos" filled
-            :rules="[val => val && val.length > 0 || 'Los articulos son obligatorios']" />
+        <!-- Eliminar artículo -->
+        <q-btn icon="remove" color="negative" flat @click="eliminarArticulo(index)" />
+      </div>
 
-        </q-card-section>
+      <q-btn label="Agregar otro artículo" @click="agregarArticulo" class="q-mb-md" />
 
-        <q-card-actions>
-          <q-btn label="Cancelar" color="secondary" flat @click="cerrarFormulario" />
-          <q-btn label="Guardar" color="primary" flat @click="postProveedor" :disable="!formValido" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+      <q-input
+        v-model="nuevaVenta.valor"
+        label="Valor"
+        filled
+        readonly
+        type="number"
+      />
+      <q-input
+        v-model="nuevaVenta.iva"
+        label="IVA (%)"
+        filled
+        type="number"
+        :rules="[val => val && val >= 0 || 'El IVA no puede ser negativo']"
+        @input="calcularTotal"
+      />
+      <q-input
+        v-model="nuevaVenta.total"
+        label="Total"
+        filled
+        readonly
+        type="number"
+      />
+    </q-card-section>
 
-    <q-dialog v-model="modalEditarProveedor" persistent>
-      <q-card>
-        <div class="text-h6">Editar Proveedor</div>
-        <q-card-section>
+    <q-card-actions>
+      <q-btn label="Cancelar" color="secondary" flat @click="cerrarFormulario" />
+      <q-btn label="Guardar" color="primary" flat @click="postVenta" :disable="!formValido" />
+    </q-card-actions>
+  </q-card>
+</q-dialog>
 
-          <q-input v-model="editarVenta.nombre" label="Nombre" filled
-            :rules="[val => val && val.length > 0 || 'El nombre es obligatorio']" />
+    <q-dialog v-model="modalEditarVenta" persistent>
+    <q-card>
+      <div class="text-h6">Editar Venta</div>
+      <q-card-section>
+        <!-- Numero de Factura (no editable) -->
+        <q-input
+          v-model="ventaEditada.numeroFactura"
+          label="No. Factura"
+          filled
+          type="number"
+          :readonly="true"
+          disabled
+        />
 
-          <q-input v-model="editarVenta.identificacion" label="Identificacion" filled
-            :rules="[val => val && val.length > 0 || 'La identificacion es obligatoria']" />
+       
+        <q-select
+          v-model="ventaEditada.articuloSeleccionado"
+          :options="articulosDisponibles"
+          label="Seleccionar Artículo"
+          filled
+          option-label="nombre"
+          option-value="_id"
+          @input="actualizarValorArticulo"
+          :rules="[val => val && val.length > 0 || 'Debe seleccionar un artículo']"
+        />
 
-          <q-input v-model="editarVenta.direccion" label="Dirección" filled
-            :rules="[val => val && val.length > 0 || 'La direccione es obligatoria']" />
+        
+        <q-input
+          v-model="ventaEditada.cantidad"
+          label="Cantidad"
+          filled
+          type="number"
+          :rules="[val => val && val > 0 || 'La cantidad debe ser mayor a 0']"
+          @input="calcularTotal"
+        />
 
-          <q-input v-model="editarVenta.telefono" label="Teléfono" filled
-            :rules="[val => val && val.length > 0 || 'El telefono es obligatorio']" />
+        <!-- Valor antes de IVA (calculado) -->
+        <q-input
+          v-model="ventaEditada.valor"
+          label="Valor"
+          filled
+          readonly
+          type="number"
+        />
 
-          <q-input v-model="editarVenta.email" label="Email" filled :rules="[
-            val => val && val.length > 0 || 'El email es obligatorio',
-            val => /.+@.+\..+/.test(val) || 'El email debe ser válido'
-          ]" />
+        <!-- IVA -->
+        <q-input
+          v-model="ventaEditada.iva"
+          label="IVA (%)"
+          filled
+          type="number"
+          :rules="[val => val && val >= 0 || 'El IVA no puede ser negativo']"
+          @input="calcularTotal"
+        />
 
+        <!-- Total (calculado) -->
+        <q-input
+          v-model="ventaEditada.total"
+          label="Total"
+          filled
+          readonly
+          type="number"
+        />
+
+      
 
         </q-card-section>
 
         <q-card-actions>
           <q-btn label="Cancelar" color="secondary" flat @click="cerrarModalEditar" />
-          <q-btn label="Guardar Cambios" color="primary" flat @click="putProveedor" />
+          <q-btn label="Guardar Cambios" color="primary" flat @click="putVenta" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -137,7 +251,7 @@ const columns = ref([
     name: "fecha",
     align: "center",
     label: "Fecha",
-    field: "fecha",
+    field: "createdAt",
     sortable: true,
     style: "font-weight: bold;",
   },
@@ -214,40 +328,102 @@ const columns = ref([
 const rows = ref([]);
 const modalConfirmarEstado = ref(false);
 const modalAgregarVenta = ref(false);
-const modalEditarProveedor = ref(false);
+const modalEditarVenta = ref(false);
 
 const nuevaVenta = ref({
-  nombre: '',
-  identificacion: '',
-  direccion: '',
-  telefono: '',
-  email: '',
-  tipo: "1",
+  numeroFactura: '',
+ articulos: [],
+  cantidad: 1,
+  valor: 0,
+  iva: 0,
+  total: 0,
+  
 });
 
-const editarVenta = ref({
+const agregarArticulo = () => {
+  nuevaVenta.value.articulos.push({
+    articuloId: '',
+    cantidad: 1,
+  });
+};
+
+// Eliminar artículo
+const eliminarArticulo = (index) => {
+  nuevaVenta.value.articulos.splice(index, 1);
+};
+
+
+
+const ventaEditada = ref({
   _id: '',
-  nombre: '',
-  identificacion: '',
-  direccion: '',
-  telefono: '',
-  email: '',
+  numeroFactura: '',
+  articuloSeleccionado: '',
+  cantidad: 1,
+  valor: 0,
+  iva: 0,
+  total: 0,
+  
 });
 
-const proveedorSeleccionado = ref(null);
+const articulosDisponibles = ref([]);  
+
+
+const cargarArticulos = async () => {
+  try {
+    const response = await getData('articulos'); 
+    articulosDisponibles.value = response;  
+  } catch (error) {
+    console.error('Error al cargar los artículos:', error);
+    Notify.create({
+      message: 'Error al cargar los artículos',
+      color: 'red',
+      icon: 'error',
+      position: 'top',
+      timeout: 3000,
+    });
+  }
+};
+
+
+onMounted(() => {
+  getVentas();
+  cargarArticulos();
+});
+
+const ventaSeleccionado = ref(null);
 const authStore = useAuthStore()
+
+const calcularTotal = (index) => {
+  let valorTotal = 0;
+  let valorArticulo = 0;
+  
+  nuevaVenta.value.articulos.forEach((articulo, idx) => {
+    if (articulo.articuloId && articulo.cantidad > 0) {
+      const item = articulosDisponibles.value.find((art) => art._id === articulo.articuloId);
+      if (item) {
+        valorArticulo = item.precio * articulo.cantidad;
+        valorTotal += valorArticulo;
+      }
+    }
+  });
+
+  nuevaVenta.value.valor = valorTotal;
+  nuevaVenta.value.total = valorTotal + (valorTotal * nuevaVenta.value.iva) / 100;
+};
+
+// Actualizar el valor del artículo cuando se selecciona uno
+const actualizarValorArticulo = (index) => {
+  calcularTotal(index);
+};
 
 const formValido = computed(() => {
 
-  return nuevaVenta.value.nombre &&
-    nuevaVenta.value.identificacion &&
-    nuevaVenta.value.direccion &&
-    nuevaVenta.value.telefono &&
-    nuevaVenta.value.email
+  return nuevaVenta.value.numeroFactura &&
+  nuevaVenta.value.articulos &&
+    nuevaVenta.value.cantidad > 0 &&
+    nuevaVenta.value.iva >= 0
 });
-onMounted(async () => {
-  await getVentas()
-})
+
 
 async function getVentas() {
   const token = authStore.getToken();
@@ -269,8 +445,8 @@ async function getVentas() {
   }
 }
 
-const mostrarModalConfirmacion = (proveedor) => {
-  proveedorSeleccionado.value = proveedor;
+const mostrarModalConfirmacion = (venta) => {
+  ventaSeleccionado.value = venta;
   modalConfirmarEstado.value = true;
 }
 
@@ -285,30 +461,25 @@ const cerrarFormulario = () => {
 
 const resetFormulario = () => {
   nuevaVenta.value = {
-    nombre: '',
-    identificacion: '',
-    direccion: '',
-    telefono: '',
-    email: '',
+    articulos: [],
+    cantidad: 1,
+    valor: 0,
+    iva: 0,
+    total: 0,
   };
 }
 
-const postProveedor = async () => {
+const postVenta = async () => {
   try {
-    nuevaVenta.value.nombre = nuevaVenta.value.nombre.trim();
-    nuevaVenta.value.identificacion = nuevaVenta.value.identificacion.trim();
-    nuevaVenta.value.direccion = nuevaVenta.value.direccion.trim();
-    nuevaVenta.value.telefono = nuevaVenta.value.telefono.trim();
-    nuevaVenta.value.email = nuevaVenta.value.email.trim();
-
+   
     console.log(nuevaVenta.value);
     
-    const response = await postData('terceros', nuevaVenta.value);
-    console.log('Proveedor creado con éxito', response);
+    const response = await postData('movimientos', nuevaVenta.value);
+    console.log('Venta creada con éxito', response);
     modalAgregarVenta.value = false;
 
     Notify.create({
-      message: 'Proveedor registrado exitosamente',
+      message: 'Venta registrada exitosamente',
       color: 'green',
       icon: 'check_circle',
       position: 'top',
@@ -317,7 +488,7 @@ const postProveedor = async () => {
     await getVentas();
     resetFormulario();
   } catch (error) {
-    console.log('Error al crear el proveedor:', error.response ? error.response.data : error);
+    console.log('Error al crear nueva venta:', error.response ? error.response.data : error);
     console.log(error);
     
     if (error.response && error.response.data && error.response.data.errores) {
@@ -356,26 +527,26 @@ const postProveedor = async () => {
   }
 }
 
-const infoProveedorEditar = (cliente) => {
-  editarVenta.value = cliente;
-  modalEditarProveedor.value = true;
+const infoVentaEditar = (cliente) => {
+  ventaEditada.value = cliente;
+  modalEditarVenta.value = true;
 }
 
 const cerrarModalEditar = () => {
-  modalEditarProveedor.value = false;
+  modalEditarVenta.value = false;
 }
 
-const putProveedor = async () => {
+const putVenta = async () => {
   try {
 
-    editarVenta.value.nombre = editarVenta.value.nombre.trim();
-    editarVenta.value.identificacion = editarVenta.value.identificacion.trim();
-    editarVenta.value.direccion = editarVenta.value.direccion.trim();
-    editarVenta.value.telefono = editarVenta.value.telefono.trim();
-    editarVenta.value.email = editarVenta.value.email.trim();
+    ventaEditada.value.nombre = ventaEditada.value.nombre.trim();
+    ventaEditada.value.identificacion = ventaEditada.value.identificacion.trim();
+    ventaEditada.value.direccion = ventaEditada.value.direccion.trim();
+    ventaEditada.value.telefono = ventaEditada.value.telefono.trim();
+    ventaEditada.value.email = ventaEditada.value.email.trim();
 
 
-    const response = await putData(`terceros/${editarVenta.value._id}`, editarVenta.value);
+    const response = await putData(`terceros/${ventaEditada.value._id}`, ventaEditada.value);
     console.log('Proveedor editado con éxito', response);
 
 
@@ -388,7 +559,7 @@ const putProveedor = async () => {
     });
 
 
-    modalEditarProveedor.value = false;
+    modalEditarVenta.value = false;
     await getVentas();
 
   } catch (error) {
@@ -432,13 +603,13 @@ const putProveedor = async () => {
 }
 
 const confirmarCambioEstado = async () => {
-  if (!proveedorSeleccionado.value) return;
+  if (!ventaSeleccionado.value) return;
 
-  const Cliente = proveedorSeleccionado.value;
-  Cliente.estado = Cliente.estado === 1 ? 0 : 1;
+  const venta = ventaSeleccionado.value;
+  venta.estado = venta.estado === 1 ? 0 : 1;
 
   try {
-    const response = await putData(`terceros/${Cliente._id}`, { estado: Cliente.estado });
+    const response = await putData(`movimientos/${venta._id}`, { estado: venta.estado });
     console.log('Estado actualizado con éxito:', response);
     Notify.create({
       message: 'Estado actualizado con éxito',
