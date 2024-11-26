@@ -44,7 +44,7 @@
   
           <q-card-actions>
             <q-btn label="Cancelar" color="secondary" flat @click="cancelarCambioEstado" />
-            <q-btn label="Confirmar" color="primary" flat @click="confirmarCambioEstado" />
+            <q-btn label="Confirmar" :loading="loading" color="primary" flat @click="confirmarCambioEstado" />
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -76,7 +76,7 @@
   
           <q-card-actions>
             <q-btn label="Cancelar" color="secondary" flat @click="cerrarFormulario" />
-            <q-btn label="Guardar" color="primary" flat @click="postProveedor" :disable="!formValido" />
+            <q-btn label="Guardar" color="primary" :loading="loading" flat @click="postProveedor" :disable="!formValido" />
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -108,7 +108,7 @@
   
           <q-card-actions>
             <q-btn label="Cancelar" color="secondary" flat @click="cerrarModalEditar" />
-            <q-btn label="Guardar Cambios" color="primary" flat @click="putProveedor" />
+            <q-btn label="Guardar Cambios" color="primary"  :loading="loading" flat @click="putProveedor" />
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -182,6 +182,7 @@
   const modalConfirmarEstado = ref(false);
   const modalAgregarProveedor = ref(false);
   const modalEditarProveedor = ref(false);
+  const loading = ref(false);
   
   const nuevoProveedor = ref({
     nombre: '',
@@ -261,6 +262,7 @@
   }
   
   const postProveedor = async () => {
+    loading.value = true;
     try {
       nuevoProveedor.value.nombre = nuevoProveedor.value.nombre.trim();
       nuevoProveedor.value.identificacion = nuevoProveedor.value.identificacion.trim();
@@ -321,6 +323,9 @@
         });
       }
     }
+    finally{  
+    loading.value = false;
+  }
   }
   
   const infoProveedorEditar = (cliente) => {
@@ -333,6 +338,7 @@
   }
   
   const putProveedor = async () => {
+    loading.value = true;
     try {
   
       editarProveedor.value.nombre = editarProveedor.value.nombre.trim();
@@ -396,9 +402,13 @@
         });
       }
     }
+    finally{  
+    loading.value = false;
   }
+}
   
   const confirmarCambioEstado = async () => {
+    loading.value = true;
     if (!proveedorSeleccionado.value) return;
   
     const Cliente = proveedorSeleccionado.value;
@@ -426,6 +436,10 @@
         timeout: 3000,
       });
     }
+    finally{
+      loading.value = false;
+    }
+    
   };
   
   
