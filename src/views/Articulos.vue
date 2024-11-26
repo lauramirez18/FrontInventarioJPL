@@ -48,7 +48,6 @@
             </q-card>
         </q-dialog>
 
-
         <q-dialog v-model="modalAgregarArticulo" persistent>
             <q-card>
                 <q-card-section>
@@ -67,7 +66,6 @@
             </q-card>
         </q-dialog>
 
-
         <q-dialog v-model="modalEditarArticulo" persistent>
             <q-card>
                 <q-card-section>
@@ -85,14 +83,12 @@
                 </q-card-actions>
             </q-card>
         </q-dialog>
-
     </q-page>
 </template>
 
-
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { getData } from '../services/apiClient.js'
+import { getData, postData, putData } from '../services/apiClient.js'
 import { useAuthStore } from '../store/useAuth.js'
 import { Notify } from 'quasar';
 
@@ -105,14 +101,12 @@ const columns = ref([
         sortable: true,
         style: "font-weight: bold;",
     },
-
     {
         name: "precio",
         align: "center",
         label: "Precio",
         field: "precio",
         sortable: true,
-
     },
     {
         name: "stock",
@@ -171,7 +165,6 @@ const articuloSeleccionado = ref(null);
 const authStore = useAuthStore()
 
 const formValido = computed(() => {
-
     return nuevoArticulo.value.nombre &&
         nuevoArticulo.value.precio &&
         nuevoArticulo.value.stock &&
@@ -238,7 +231,7 @@ const postArticulo = async () => {
         modalAgregarArticulo.value = false;
 
         Notify.create({
-            message: 'Proveedor registrado exitosamente',
+            message: 'Articulo registrado exitosamente',
             color: 'green',
             icon: 'check_circle',
             position: 'top',
@@ -248,10 +241,10 @@ const postArticulo = async () => {
         resetFormulario();
     } catch (error) {
         console.log('Error al crear el articulo', error.response ? error.response.data : error);
-        if (error.response && error.response.data && error.reponse.data.errores) {
+        if (error.response && error.response.data && error.response.data.errores) {
             const errores = error.response.data.errores;
 
-            errores.foreach((err) => {
+            errores.forEach((err) => {
                 if (err.msg) {
                     Notify.create({
                         message: err.msg,
@@ -271,7 +264,6 @@ const postArticulo = async () => {
                 }
             })
         } else {
-
             Notify.create({
                 message: 'Hubo un error en el registro. Inténtelo nuevamente.',
                 color: 'red',
@@ -294,7 +286,6 @@ const cerrarModalEditar = () => {
 
 const putArticulos = async () => {
     try {
-
         articulosEditar.value.nombre = articulosEditar.value.nombre.trim();
         articulosEditar.value.precio = articulosEditar.value.precio.trim();
         articulosEditar.value.stock = articulosEditar.value.stock.trim();
@@ -303,7 +294,7 @@ const putArticulos = async () => {
         console.log("Articulo actualizado con exito", response);
 
         Notify.create({
-            message: 'Usuario editado con éxito',
+            message: 'Articulo editado con éxito',
             color: 'green',
             icon: 'check_circle',
             position: 'top',
@@ -317,6 +308,7 @@ const putArticulos = async () => {
         console.log("Error al actualizar el articulo", error.response ? error.response.data : error);
     }
 }
+
 const confirmarCambioEstado = async () => {
     if (!articuloSeleccionado.value) return;
 
@@ -337,9 +329,6 @@ const confirmarCambioEstado = async () => {
 const cancelarCambioEstado = () => {
     modalConfirmarEstado.value = false;
 }
-
-
-
 </script>
 
 <style scoped>
@@ -358,7 +347,6 @@ const cancelarCambioEstado = () => {
     padding: 12px;
     text-align: center;
 }
-
 
 .tabla-cell.opciones button {
     padding: 5px 10px;
