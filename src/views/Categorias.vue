@@ -64,7 +64,6 @@
                     <div class="text-h6">Editar Categoria</div>
                     <q-input v-model="categoriaEditar.nombre" label="Nombre" filled />
                     <q-input v-model="categoriaEditar.descripcion" label="Descripción" filled />
-                    <q-input v-model="categoriaEditar.estado" label="Estado" filled type="number" min="0" max="1" />
                 </q-card-section>
 
                 <q-card-actions>
