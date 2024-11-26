@@ -39,7 +39,7 @@
           </div>
         </q-card-section>
         <q-card-actions id="buttom">
-          <q-btn @click="login" label="Iniciar Sesión"  />
+          <q-btn @click="login" :loading="loading" label="Iniciar Sesión"  />
         </q-card-actions> 
         </div>
         
@@ -61,12 +61,15 @@
   const router = useRouter();
   const showForm = ref(false);  
   const authStore = useAuthStore();
+  const loading = ref(false);
   
   onMounted(() => {
     showForm.value = true;
   })
   
   const login = async () => {
+    loading.value = true;
+
     try {
 
       const response = await postData('/login', { email: email.value, password: password.value });
@@ -89,6 +92,7 @@
         passwordError.value = '';
       }
     }
+    loading.value = false;
   };
 
   </script>

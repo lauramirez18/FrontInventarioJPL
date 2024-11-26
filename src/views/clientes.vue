@@ -43,7 +43,7 @@
 
               <q-card-actions>
                   <q-btn label="Cancelar" color="secondary" flat @click="cancelarCambioEstado" />
-                  <q-btn label="Confirmar" color="primary" flat @click="confirmarCambioEstado" />
+                  <q-btn label="Confirmar" :loading="loading" color="primary" flat @click="confirmarCambioEstado" />
               </q-card-actions>
           </q-card>
       </q-dialog>
@@ -76,7 +76,7 @@
 
               <q-card-actions>
                   <q-btn label="Cancelar" color="secondary" flat @click="cerrarFormulario" />
-                  <q-btn label="Guardar" color="primary" flat @click="postCliente" :disable="!formValido" />
+                  <q-btn label="Guardar" color="primary" :loading="loading" flat @click="postCliente" :disable="!formValido" />
               </q-card-actions>
           </q-card>
       </q-dialog>
@@ -108,7 +108,7 @@
 
               <q-card-actions>
                   <q-btn label="Cancelar" color="secondary" flat @click="cerrarModalEditar" />
-                  <q-btn label="Guardar Cambios" color="primary" flat @click="putClientes" />
+                  <q-btn label="Guardar Cambios" :loading="loading" color="primary" flat @click="putClientes" />
               </q-card-actions>
           </q-card>
       </q-dialog>
@@ -182,6 +182,7 @@ const rows = ref([]);
 const modalConfirmarEstado = ref(false);
 const modalAgregarCliente = ref(false);
 const modalEditarCliente = ref(false);
+const loading = ref(false);
 
 const nuevoCliente = ref({
   nombre: '',
@@ -262,6 +263,7 @@ const resetFormulario = () => {
 }
 
 const postCliente = async () => {
+    loading.value = true;
   try {
       nuevoCliente.value.nombre = nuevoCliente.value.nombre.trim();
       nuevoCliente.value.identificacion = nuevoCliente.value.identificacion.trim();
@@ -319,6 +321,9 @@ const postCliente = async () => {
           });
       }
   }
+  finally{  
+    loading.value = false;
+  }
 }
 
 const infoClienteEditar = (cliente) => {
@@ -331,6 +336,7 @@ const cerrarModalEditar = () => {
 }
 
 const putClientes = async () => {
+    loading.value = true;
   try {
 
       editarCliente.value.nombre = editarCliente.value.nombre.trim();
@@ -394,9 +400,13 @@ const putClientes = async () => {
           });
       }
   }
+  finally{  
+    loading.value = false;
+  }
 }
 
 const confirmarCambioEstado = async () => {
+    loading.value = true;
   if (!clienteSeleccionado.value) return;
 
   const Cliente = clienteSeleccionado.value;
@@ -424,14 +434,15 @@ const confirmarCambioEstado = async () => {
           timeout: 3000,
       });
   }
+  finally{  
+    loading.value = false;
+  }
 };
 
 
 const cancelarCambioEstado = () => {
   modalConfirmarEstado.value = false;
 };
-
-
 
 </script>
 

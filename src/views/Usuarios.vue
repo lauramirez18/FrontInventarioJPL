@@ -67,7 +67,7 @@
 
                 <q-card-actions>
                     <q-btn label="Cancelar" color="secondary" flat @click="cerrarFormulario" />
-                    <q-btn label="Guardar" color="primary" flat @click="postUsuario" :disable="!formValido" />
+                    <q-btn label="Guardar" color="primary" :loading="loading" flat @click="postUsuario" :disable="!formValido" />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -90,7 +90,7 @@
 
                 <q-card-actions>
                     <q-btn label="Cancelar" color="secondary" flat @click="cerrarModalEditar" />
-                    <q-btn label="Guardar Cambios" color="primary" flat @click="putUsuarios" />
+                    <q-btn label="Guardar Cambios" :loading="loading" color="primary" flat @click="putUsuarios" />
                 </q-card-actions>
             </q-card>
         </q-dialog>
@@ -141,6 +141,7 @@ const rows = ref([]);
 const modalConfirmarEstado = ref(false);
 const modalAgregarUsuario = ref(false);
 const modalEditarUsuario = ref(false);
+const loading = ref(false);
 
 const nuevoUsuario = ref({
     nombre: '',
@@ -214,6 +215,7 @@ const resetFormulario = () => {
 }
 
 const postUsuario = async () => {
+    loading.value = true;
     try {
         nuevoUsuario.value.nombre = nuevoUsuario.value.nombre.trim();
         nuevoUsuario.value.email = nuevoUsuario.value.email.trim();
@@ -268,6 +270,10 @@ const postUsuario = async () => {
             });
         }
     }
+
+    finally{  
+    loading.value = false;
+  }
 }
 
 const editarUsuario = (usuario) => {
@@ -280,6 +286,7 @@ const cerrarModalEditar = () => {
 }
 
 const putUsuarios = async () => {
+    loading.value = true;
     try {
 
         usuarioEditar.value.nombre = usuarioEditar.value.nombre.trim();
@@ -305,6 +312,8 @@ const putUsuarios = async () => {
     } catch (error) {
         console.log('Error al editar el usuario:', error.response ? error.response.data : error);
     }
+
+    loading.value = false;
 }
 const confirmarCambioEstado = async () => {
     if (!usuarioSeleccionado.value) return;
