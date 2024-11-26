@@ -2,6 +2,7 @@ import Axios from 'axios';
 
 const token = JSON.parse(localStorage.getItem('auth'));  
 
+console.log("mitoken",token);
 
 
 const apiClient = Axios.create({
