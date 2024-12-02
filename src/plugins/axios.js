@@ -5,6 +5,7 @@ if (token) {
     console.log("Token encontrado:", token);
 } else {
     console.log("Token no encontrado en localStorage");
+    token = "";
 } 
 
 console.log("mitoken",token);
