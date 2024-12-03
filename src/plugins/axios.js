@@ -5,18 +5,18 @@ if (token) {
     console.log("Token encontrado:", token);
 } else {
     console.log("Token no encontrado en localStorage");
-    token = "";
+    
 } 
 
 console.log("mitoken",token);
 
 
 const apiClient = Axios.create({
-    /* baseURL: 'http://localhost:2999/api',  */
-   baseURL: 'https://inventariojpl.onrender.com/api',
+    baseURL: 'http://localhost:2999/api', 
+  /*   baseURL: 'https://inventariojpl.onrender.com/api', */
     headers: {
-        "x-token": token.token
+        "x-token": token.token,
     }
 });
 
-export default apiClient;
+export default apiClient;

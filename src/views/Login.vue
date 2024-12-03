@@ -75,10 +75,11 @@
       const response = await postData('/login', { email: email.value, password: password.value });
       const token = response.token;
       console.log('Token recibido:', response);
-      
+    
       if (token) {
        authStore.token = response.token;
         console.log('Token guardado:', authStore.token);
+        localStorage.setItem('auth', JSON.stringify({ token }));
         router.replace("/inicio");
       } else {
         console.log('Respuesta sin token:', response);
