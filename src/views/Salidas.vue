@@ -6,7 +6,88 @@
       <q-btn label="Registrar" @click="abrirFormulario" class="q-mb-md" id="btn-registrar" />
     </div>
 
-    <q-table class="tabla-views" :rows="rows" :columns="columns" row-key="name">
+    <!-- Este es el codigo del cuadro la tabla de facturas -->
+
+    <div>
+      <q-table :rows="rows" :columns="columns" row-key="name" bordered class="tabla-views">
+        <template v-slot:header="props">
+          <tr>
+            <th v-for="col in props.cols" :key="col.name" :class="'tabla-header'">
+              <span>{{ col.label }}</span>
+            </th>
+          </tr>
+        </template>
+
+        <template v-slot:body-cell-opciones="props">
+          <q-td :props="props">
+            <button @click="ver(props.row)">👁️</button>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-fecha="props">
+          <q-td :props="props" class="q-pa-sm">
+            {{ new Date(props.row.createdAt).toLocaleDateString('es-ES') }}
+          </q-td>
+        </template>
+
+
+
+      </q-table>
+    </div>
+
+    <!-- Este es el codigo del cuadro de dialogo -->
+
+    <q-dialog v-model="abrir" persistent :maximized="maximizedToggle" transition-show="slide-up"
+      transition-hide="slide-down">
+      <q-card class="text-dark">
+        <q-bar class="q-pa-lg">
+          <q-space />
+          <q-btn dense flat icon="close" v-close-popup>
+            <q-tooltip class="bg-white text-primary">Cerrar</q-tooltip>
+          </q-btn>
+        </q-bar>
+
+        <q-card-section>
+          <div class="titulo">
+            <h4 class="text-center text-weight-bold">Detalle de factura</h4>
+          </div>
+          <div class="formulario">
+            <div style="
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 30px;
+              ">
+              <q-input v-model="numeroFactura" label="No.factura" disable />
+              <q-input v-model="cliente" label="Cliente" disable />
+              <q-input v-model="fecha" label="Fecha "  disable />
+              <q-input :model-value="totalProductos" label="Total factura" disable />
+            </div>
+          </div>
+
+        </q-card-section>
+        <q-card-section class="tabla-views">
+          <div>
+            <div style="display: flex; justify-content: end; gap: 10px">
+              <q-select filled clearable v-model="busqueda" use-input input-debounce="0"
+                label="Buscar producto por nombre..." :options="productosFiltrados" option-label="nombre"
+                @filter="filtro" style="width: 40%" transition-show="flip-up" transition-hide="flip-down">
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey">
+                      <q-btn style="width: 20%" @click="open = true">➕</q-btn>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+              <button @click="agregar()">🔎</button>
+            </div>
+          </div>
+        </q-card-section>
+        <q-card-section class="tabla-views">
+          <div>
+
+            <q-table class="tabla-views" :rows="articulos" :columns="columnsProductos" row-key="id">
       <template v-slot:header="props">
         <tr>
           <th v-for="col in props.cols" :key="col.name" :class="'tabla-header'">
@@ -25,36 +106,16 @@
 
 <template v-slot:body-cell-precio="props">
   <q-td :props="props" class="q-pa-sm">
+    <!-- Mostrar el precio del producto -->
     <div v-for="(articulo, index) in props.row.articulos" :key="index">
-      <span>{{ articulo._id.precio }}</span> 
+      <span>{{ articulo.precio }}</span> 
     </div>
   </q-td>
 </template>
 
 
-<template v-slot:body-cell-fecha="props">
-  <q-td :props="props" class="q-pa-sm">
-    {{ new Date(props.row.createdAt).toLocaleDateString('es-ES') }}
-  </q-td>
-</template>
+<q-td key="cantidad" :props="props">{{ props.row.cantidad }}</q-td>
 
-
-
-<template v-slot:body-cell-cantidad="props">
-  <q-td :props="props" class="q-pa-sm">
-    <div v-for="(articulo, index) in props.row.articulos" :key="index">
-      <span>{{ articulo.cantidad }}</span> 
-    </div>
-  </q-td>
-</template>
-
-      
-      <template v-slot:body-cell-estado="props">
-        <q-td :props="props" class="q-pa-sm">
-          <span style="color: green;" v-if="props.row.estado == 1">Aprobado</span>
-          <span style="color: red;" v-else>Anulado</span>
-        </q-td>
-      </template>
 
       <template v-slot:body-cell-opciones="props">
         <q-td :props="props" class="tabla-cell opciones">
@@ -69,166 +130,32 @@
 
     </q-table>
 
-    <q-dialog v-model="modalConfirmarEstado">
+
+
+
+
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+    <q-dialog v-model="open">
       <q-card>
-        <div class="text-h6">¿Estás seguro de cambiar el estado?</div>
         <q-card-section>
-
+          <div class="text-h6">Alert</div>
         </q-card-section>
 
-        <q-card-actions>
-          <q-btn label="Cancelar" color="secondary" flat @click="cancelarCambioEstado" />
-          <q-btn label="Confirmar" color="primary" flat @click="confirmarCambioEstado" />
+        <q-card-section class="q-pt-none">
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum
+          repellendus sit voluptate voluptas eveniet porro. Rerum blanditiis
+          perferendis totam, ea at omnis vel numquam exercitationem aut, natus
+          minima, porro labore.
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="OK" color="primary" v-close-popup />
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <q-dialog v-model="modalAgregarVenta" persistent>
-  <q-card>
-    <div class="text-h6">Agregar Nueva Venta</div>
-    <q-card-section>
-      
-      <q-input
-        v-model="nuevaVenta.numeroFactura"
-        label="No. Factura"
-        filled
-        type="number"
-        :rules="[val => val && val.length > 0 || 'El número de factura es obligatorio']"
-      />
-
-      <!-- Artículos seleccionados -->
-      <div v-for="(articulo, index) in nuevaVenta.articulos" :key="index" class="q-mb-md">
-        <q-select
-          v-model="articulo.articuloId"
-          :options="articulosDisponibles"
-          label="Seleccionar Artículo"
-          filled
-          option-label="nombre"
-          option-value="_id"
-          @input="actualizarValorArticulo(index)"
-          :rules="[val => val && val.length > 0 || 'Debe seleccionar un artículo']"
-        />
-        
-        <q-input
-          v-model="articulo.cantidad"
-          label="Cantidad"
-          filled
-          type="number"
-          :rules="[val => val && val > 0 || 'La cantidad debe ser mayor a 0']"
-          @input="calcularTotal(index)"
-        />
-
-        <!-- Eliminar artículo -->
-        <q-btn icon="remove" color="negative" flat @click="eliminarArticulo(index)" />
-      </div>
-
-      <q-btn label="Agregar otro artículo" @click="agregarArticulo" class="q-mb-md" />
-
-      <q-input
-        v-model="nuevaVenta.valor"
-        label="Valor"
-        filled
-        readonly
-        type="number"
-      />
-      <q-input
-        v-model="nuevaVenta.iva"
-        label="IVA (%)"
-        filled
-        type="number"
-        :rules="[val => val && val >= 0 || 'El IVA no puede ser negativo']"
-        @input="calcularTotal"
-      />
-      <q-input
-        v-model="nuevaVenta.total"
-        label="Total"
-        filled
-        readonly
-        type="number"
-      />
-    </q-card-section>
-
-    <q-card-actions>
-      <q-btn label="Cancelar" color="secondary" flat @click="cerrarFormulario" />
-      <q-btn label="Guardar" color="primary" flat @click="postVenta" :disable="!formValido" />
-    </q-card-actions>
-  </q-card>
-</q-dialog>
-
-    <q-dialog v-model="modalEditarVenta" persistent>
-    <q-card>
-      <div class="text-h6">Editar Venta</div>
-      <q-card-section>
-        <!-- Numero de Factura (no editable) -->
-        <q-input
-          v-model="ventaEditada.numeroFactura"
-          label="No. Factura"
-          filled
-          type="number"
-          :readonly="true"
-          disabled
-        />
-
-       
-        <q-select
-          v-model="ventaEditada.articuloSeleccionado"
-          :options="articulosDisponibles"
-          label="Seleccionar Artículo"
-          filled
-          option-label="nombre"
-          option-value="_id"
-          @input="actualizarValorArticulo"
-          :rules="[val => val && val.length > 0 || 'Debe seleccionar un artículo']"
-        />
-
-        
-        <q-input
-          v-model="ventaEditada.cantidad"
-          label="Cantidad"
-          filled
-          type="number"
-          :rules="[val => val && val > 0 || 'La cantidad debe ser mayor a 0']"
-          @input="calcularTotal"
-        />
-
-        <!-- Valor antes de IVA (calculado) -->
-        <q-input
-          v-model="ventaEditada.valor"
-          label="Valor"
-          filled
-          readonly
-          type="number"
-        />
-
-        <!-- IVA -->
-        <q-input
-          v-model="ventaEditada.iva"
-          label="IVA (%)"
-          filled
-          type="number"
-          :rules="[val => val && val >= 0 || 'El IVA no puede ser negativo']"
-          @input="calcularTotal"
-        />
-
-        <!-- Total (calculado) -->
-        <q-input
-          v-model="ventaEditada.total"
-          label="Total"
-          filled
-          readonly
-          type="number"
-        />
-
-      
-
-        </q-card-section>
-
-        <q-card-actions>
-          <q-btn label="Cancelar" color="secondary" flat @click="cerrarModalEditar" />
-          <q-btn label="Guardar Cambios" color="primary" flat @click="putVenta" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
   </q-page>
 </template>
 
@@ -238,192 +165,46 @@ import { getData, postData, putData } from '../services/apiClient.js'
 import { useAuthStore } from '../store/useAuth.js'
 import { Notify } from 'quasar'
 
+let abrir = ref(false);
+let maximizedToggle = ref(true);
+let total = ref(0);
+let numeroFactura = ref("");
+let fecha = ref("");
+let cliente = ref("");
+let productosFiltrados = ref([]);
+let busqueda = ref(null);
+let open = ref(false);
+const authStore = useAuthStore()
+
 const columns = ref([
   {
     name: "numeroFactura",
-    align: "center",
-    label: "No. Factura",
+    label: "Numero de factura",
     field: "numeroFactura",
-    sortable: true,
-    style: "font-weight: bold;",
+    align: "center",
+  },
+  {
+    name: "cliente",
+    label: "Cliente",
+    align: "center",
+    field: "cliente"
   },
   {
     name: "fecha",
+    required: true,
+    label: "Fecha de factura",
     align: "center",
-    label: "Fecha",
-    field: "createdAt",
+    field: "fecha",
     sortable: true,
-    style: "font-weight: bold;",
-  },
-  {
-    name: "articulos",
-    align: "center",
-    label: "Articulos",
-    field: "articulos",
-    sortable: true,
-    style: "font-weight: bold;",
-  },
-  {
-    name:"precio",
-    align: "center",
-    label: "Precio",
-    field: "precio",
-    sortable: true,
-    style: "font-weight: bold;",
-  },
-  {
-    name: "cantidad",
-    align: "center",
-    label: "Cantidad",
-    field: "cantidad",
-    sortable: true,
-    style: "font-weight: bold;",
   },
 
-  {
-    name: "valor",
-    align: "center",
-    label: "Valor",
-    field: "valor",
-    sortable: true,
-    style: "font-weight: bold;",
-  },
-  
-  {
-    name: "iva",
-    align: "center",
-    label: "IVA",
-    field: "iva",
-    sortable: true,
-    style: "font-weight: bold;",
-  },
-  
-{
-    name: "total",
-    align: "center",
-    label: "Total",
-    field: "total",
-    sortable: true,
-    style: "font-weight: bold;",
-  },
-  {
-    name: "estado",
-    align: "center",
-    label: "Estado",
-    field: "estado",
-    sortable: true,
-    style: "font-weight: bold;",
-  },
-    
-  {
-    name: "opciones",
-    align: "center",
-    label: " Opciones",
-    field: "opciones",
-    sortable: true,
-  },
-])
-
-
+  { name: "total", label: "Valor Total", align: "center", field: "total" },
+  { name: "opciones", label: "Vizualización", align: "center", field: "opciones" },
+]);
+onMounted(async () => {
+  await getVentas();
+})
 const rows = ref([]);
-const modalConfirmarEstado = ref(false);
-const modalAgregarVenta = ref(false);
-const modalEditarVenta = ref(false);
-
-const nuevaVenta = ref({
-  numeroFactura: '',
- articulos: [],
-  cantidad: 1,
-  valor: 0,
-  iva: 0,
-  total: 0,
-  
-});
-
-const agregarArticulo = () => {
-  nuevaVenta.value.articulos.push({
-    articuloId: '',
-    cantidad: 1,
-  });
-};
-
-// Eliminar artículo
-const eliminarArticulo = (index) => {
-  nuevaVenta.value.articulos.splice(index, 1);
-};
-
-
-
-const ventaEditada = ref({
-  _id: '',
-  numeroFactura: '',
-  articuloSeleccionado: '',
-  cantidad: 1,
-  valor: 0,
-  iva: 0,
-  total: 0,
-  
-});
-
-const articulosDisponibles = ref([]);  
-
-
-const cargarArticulos = async () => {
-  try {
-    const response = await getData('articulos'); 
-    articulosDisponibles.value = response;  
-  } catch (error) {
-    console.error('Error al cargar los artículos:', error);
-    Notify.create({
-      message: 'Error al cargar los artículos',
-      color: 'red',
-      icon: 'error',
-      position: 'top',
-      timeout: 3000,
-    });
-  }
-};
-
-
-onMounted(() => {
-  getVentas();
-  cargarArticulos();
-});
-
-const ventaSeleccionado = ref(null);
-const authStore = useAuthStore()
-
-const calcularTotal = (index) => {
-  let valorTotal = 0;
-  let valorArticulo = 0;
-  
-  nuevaVenta.value.articulos.forEach((articulo, idx) => {
-    if (articulo.articuloId && articulo.cantidad > 0) {
-      const item = articulosDisponibles.value.find((art) => art._id === articulo.articuloId);
-      if (item) {
-        valorArticulo = item.precio * articulo.cantidad;
-        valorTotal += valorArticulo;
-      }
-    }
-  });
-
-  nuevaVenta.value.valor = valorTotal;
-  nuevaVenta.value.total = valorTotal + (valorTotal * nuevaVenta.value.iva) / 100;
-};
-
-// Actualizar el valor del artículo cuando se selecciona uno
-const actualizarValorArticulo = (index) => {
-  calcularTotal(index);
-};
-
-const formValido = computed(() => {
-
-  return nuevaVenta.value.numeroFactura &&
-  nuevaVenta.value.articulos &&
-    nuevaVenta.value.cantidad > 0 &&
-    nuevaVenta.value.iva >= 0
-});
-
 
 async function getVentas() {
   const token = authStore.getToken();
@@ -445,185 +226,62 @@ async function getVentas() {
   }
 }
 
-const mostrarModalConfirmacion = (venta) => {
-  ventaSeleccionado.value = venta;
-  modalConfirmarEstado.value = true;
-}
+const columnsProductos = ref([
+  {
+    name: "nombre",
+    label: "Nombre producto",
+    field: "nombre",
+    align: "center",
+  },
+  {
+    name: "cantidad",
+    align: "center",
+    label: "Cantidad",
+    field: "cantidad",
+    sortable: true,
+  },
+  {
+    name: "precio",
+    required: true,
+    label: "Precio unitario",
+    align: "center",
+    field: "precio",
+    sortable: true,
+  },
+ 
+  { name: "valor", label: "Subtotal", align: "center", field: row => row.cantidad * row.precio },
+  { name: "opciones", label: "Opciones", align: "center", field: "opciones" },
+]);
 
-const abrirFormulario = () => {
-  modalAgregarVenta.value = true;
-}
+const articulos = ref([]);
+const articulosApi = ref([]);
 
-const cerrarFormulario = () => {
-  modalAgregarVenta.value = false;
-  resetFormulario();
-}
-
-const resetFormulario = () => {
-  nuevaVenta.value = {
-    articulos: [],
-    cantidad: 1,
-    valor: 0,
-    iva: 0,
-    total: 0,
-  };
-}
-
-const postVenta = async () => {
+const cargarDetallesProductos = async (articulos) => {
   try {
-   
-    console.log(nuevaVenta.value);
-    
-    const response = await postData('movimientos', nuevaVenta.value);
-    console.log('Venta creada con éxito', response);
-    modalAgregarVenta.value = false;
+    const response = await getData('articulos'); // Obtener todos los productos
+    console.log(response); // Verificar los datos que devuelve la API
 
-    Notify.create({
-      message: 'Venta registrada exitosamente',
-      color: 'green',
-      icon: 'check_circle',
-      position: 'top',
-      timeout: 3000,
-    });
-    await getVentas();
-    resetFormulario();
-  } catch (error) {
-    console.log('Error al crear nueva venta:', error.response ? error.response.data : error);
-    console.log(error);
-    
-    if (error.response && error.response.data && error.response.data.errores) {
-      const errores = error.response.data.errores;
-
-      errores.forEach((err) => {
-        if (err.msg) {
-          Notify.create({
-            message: err.msg,
-            color: 'red',
-            icon: 'error',
-            position: 'top',
-            timeout: 3000,
-          });
-        } else {
-
-          Notify.create({
-            message: 'Error desconocido',
-            color: 'red',
-            icon: 'error',
-            position: 'top',
-            timeout: 3000,
-          });
+    if (Array.isArray(response) && articulos) {
+      articulos.forEach((articuloFactura) => {
+        // Verifica si el artículo tiene un _id y busca el producto
+        if (Array.isArray(response)) {
+          const producto = response.find((prod) => prod._id === articuloFactura.id);
+          if (producto) {
+            // Actualiza el nombre, precio y otros valores de la fila
+            const index = articulos.value.findIndex(p => p.id === articuloFactura.id);
+            if (index !== -1) {
+              articulos.value[index].nombre = producto.nombre || '';   // Asigna el nombre
+              articulos.value[index].precio = producto.precio || 0;     // Asigna el precio
+              articulos.value[index].iva = producto.iva || 0;           // Asigna el IVA (si es necesario)
+            }
+          }
         }
       });
-    } else {
-
-      Notify.create({
-        message: 'Hubo un error en el registro. Inténtelo nuevamente.',
-        color: 'red',
-        icon: 'error',
-        position: 'top',
-        timeout: 3000,
-      });
     }
-  }
-}
-
-const infoVentaEditar = (cliente) => {
-  ventaEditada.value = cliente;
-  modalEditarVenta.value = true;
-}
-
-const cerrarModalEditar = () => {
-  modalEditarVenta.value = false;
-}
-
-const putVenta = async () => {
-  try {
-
-    ventaEditada.value.nombre = ventaEditada.value.nombre.trim();
-    ventaEditada.value.identificacion = ventaEditada.value.identificacion.trim();
-    ventaEditada.value.direccion = ventaEditada.value.direccion.trim();
-    ventaEditada.value.telefono = ventaEditada.value.telefono.trim();
-    ventaEditada.value.email = ventaEditada.value.email.trim();
-
-
-    const response = await putData(`terceros/${ventaEditada.value._id}`, ventaEditada.value);
-    console.log('Proveedor editado con éxito', response);
-
-
-    Notify.create({
-      message: 'Proveedor editado con éxito',
-      color: 'green',
-      icon: 'check_circle',
-      position: 'top',
-      timeout: 3000,
-    });
-
-
-    modalEditarVenta.value = false;
-    await getVentas();
-
   } catch (error) {
-    console.log('Error al editar el proveedor:', error.response ? error.response.data : error);
-
-
-    if (error.response && error.response.data && error.response.data.errores) {
-      const errores = error.response.data.errores;
-      console.log('Errores del backend:', errores);
-
-      errores.forEach((err) => {
-        if (err.msg) {
-          Notify.create({
-            message: err.msg,
-            color: 'red',
-            icon: 'error',
-            position: 'top',
-            timeout: 3000,
-          });
-        } else {
-          Notify.create({
-            message: 'Error desconocido',
-            color: 'red',
-            icon: 'error',
-            position: 'top',
-            timeout: 3000,
-          });
-        }
-      });
-    } else {
-
-      Notify.create({
-        message: 'Hubo un error al editar el proveedor. Inténtelo nuevamente.',
-        color: 'red',
-        icon: 'error',
-        position: 'top',
-        timeout: 3000,
-      });
-    }
-  }
-}
-
-const confirmarCambioEstado = async () => {
-  if (!ventaSeleccionado.value) return;
-
-  const venta = ventaSeleccionado.value;
-  venta.estado = venta.estado === 1 ? 0 : 1;
-
-  try {
-    const response = await putData(`movimientos/${venta._id}`, { estado: venta.estado });
-    console.log('Estado actualizado con éxito:', response);
+    console.error('Error al cargar los detalles de los productos:', error);
     Notify.create({
-      message: 'Estado actualizado con éxito',
-      color: 'green',
-      icon: 'check_circle',
-      position: 'top',
-      timeout: 3000,
-    });
-    await getVentas();
-    modalConfirmarEstado.value = false;
-  } catch (error) {
-    console.log('Error al actualizar el estado:', error.response ? error.response.data : error);
-    Notify.create({
-      message: 'Error al actualizar el estado',
+      message: 'Error al cargar los detalles de los productos',
       color: 'red',
       icon: 'error',
       position: 'top',
@@ -633,19 +291,98 @@ const confirmarCambioEstado = async () => {
 };
 
 
-const cancelarCambioEstado = () => {
-  modalConfirmarEstado.value = false;
-};
+function ver(r) {
+  abrir.value = true;
+  console.log(r);
 
+  // Verificar si 'productos' está definido en 'r'
+  if (r.articulos && Array.isArray(r.articulos)) {
+    cliente.value = r.cliente;
+    fecha.value = r.fecha;
+    numeroFactura.value = r.numeroFactura;
 
+    // Solo ejecutar .map() si 'productos' es un arreglo
+    articulos.value = r.articulos.map((articulo) => {
+      return {
+        id: articulo._id,
+        nombre: articulo.nombre || '',
+        precio: 0,
+        cantidad: articulo.cantidad,
+        iva: 0,
+      };
+    });
 
-</script>
-
-<style scoped>
-* {
-  padding: 0;
+    // Llamada para cargar los detalles de los productos
+    cargarDetallesProductos(r.articulos);
+  } else {
+    console.error("La propiedad 'productos' no está definida o no es un arreglo");
+    Notify.create({
+      message: 'Error: No se encontraron productos en la factura.',
+      color: 'red',
+      icon: 'error',
+      position: 'top',
+      timeout: 3000,
+    });
+  }
 }
 
+function verDetalle(r) {
+  console.log(r);
+}
+
+const filtro = (val, update) => {
+  /* productosFiltrados.value =  !nombre ? productosApi.value : productosApi.value.filter((item)=> item.nombre.toLowerCase().includes(nombre)) 
+  console.log(productosFiltrados.value); */
+
+  if (val == "") {
+    update(() => {
+      productosFiltrados.value = articulosApi.value;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    productosFiltrados.value = articulosApi.value.filter((item) =>
+      item.nombre.toLowerCase().includes(needle)
+    );
+  });
+};
+
+const agregar = () => {
+  console.log(busqueda.value);
+  if (busqueda.value) {
+    let valido = articulos.value.some((item) => {
+      return item.id == busqueda.value.id;
+    });
+    if (valido) {
+      console.log("este producto ya se encuentra");
+    } else {
+      articulos.value.unshift({
+        id: busqueda.value.id,
+        nombre: busqueda.value.nombre,
+        cantidad: 0,
+        precioUnitario: busqueda.value.precioUnitario,
+        iva: busqueda.value.iva,
+      });
+    }
+
+  } else {
+    console.log("Seleccione un producto...");
+  }
+  busqueda.value = "";
+};
+
+const totalProductos = computed(() => {
+  return articulos.value
+    .reduce(
+      (acum, current) => acum + current.cantidad * current.precioUnitario,
+      0
+    )
+    .toLocaleString("es-CO");
+});
+</script>
+<style scoped>
 .tabla-views {
   margin: 30px auto;
   max-width: 1100px;
@@ -662,80 +399,16 @@ const cancelarCambioEstado = () => {
   text-align: center;
 }
 
-.tabla-cell.opciones button {
-  padding: 5px 10px;
-  border: none;
-  color: white;
-  cursor: pointer;
-  border-radius: 4px;
+.titulo {
+  margin-bottom: 20px;
 }
 
-.main-btn-registrar {
+.formulario {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
   align-items: center;
-  max-width: 1150px;
-}
-
-#btn-registrar {
-  background-color: rgb(2, 21, 38);
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  display: flex;
-  margin: 20px 30px 5px;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-  gap: 10px;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  padding: 10px;
-
-}
-
-#btn-registrar:hover {
-  background-color: rgb(1, 104, 46);
-  color: white;
-  transform: translateY(-5px);
-}
-
-.q-card {
-
-  border-radius: 5px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  background-color: #fff;
-  margin: 10px auto;
-  padding-bottom: 20px;
-
-}
-
-.q-card-section {
-  background-color: bisque;
-  padding: 0;
-}
-
-.text-h6 {
-  text-align: center;
-  font-size: 30px;
-  font-weight: bold;
-  color: white;
-  background-color: rgb(85, 89, 92);
-  padding: 30px;
-}
-
-
-
-.q-input {
-  display: flex;
-
-  padding: 20px 33px 22px;
-}
-
-.q-card__actions {
-  display: flex;
-  padding-top: 20px;
-  justify-content: center;
+  justify-content: space-around;
+  gap: 30px;
+  flex-wrap: wrap;
 }
 </style>
