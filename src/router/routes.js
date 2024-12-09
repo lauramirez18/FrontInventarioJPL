@@ -1,65 +1,82 @@
 import MainLayout from '../layouts/MainLayout.vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
+import Inicio from '../views/Inicio.vue'
+import Usuarios from '../views/Usuarios.vue'
+import Clientes from '../views/Clientes.vue'
+import Salidas from '../views/Salidas.vue'
+import Entradas from '../views/Entradas.vue'
+import Articulos from '../views/Articulos.vue'
+import Categorias from '../views/Categorias.vue'
+import Proveedores from '../views/Proveedores.vue'
+import Login from '../views/Login.vue'
+
+
 
 
 const routes = [
-   {
+  {
     path: '/',
-    component: () => MainLayout,
+    name: 'Login',
+    component: Login
+  },
+  {
+
+    path: '',
+    component: MainLayout,
     children: [
+
       {
         path: '',
         name: 'Login',
-        component: () => import('../views/Login.vue')
-    
-    },
+        component: Login
+      },
       {
         path: 'terceros/clientes',
         name: 'clientes',
-        component: () => import('../views/Clientes.vue')
+        component: Clientes
       },
       {
-          path: 'salidas',
-          name: 'salidas',
-          component: () => import('../views/Salidas.vue')
-        },
-        {
-          path: 'entradas',
-          name: 'entradas',
-          component: () => import('../views/Entradas.vue')
-        },
-        {
-            path: 'articulos',
-            name: 'articulos',
-            component: () => import('../views/Articulos.vue')
-        },
-        {
-            path: 'categorias',
-            name: 'categorias',
-            component: () => import('../views/Categorias.vue')
-        },
-        {
-            path: 'terceros/proveedores',
-            name: 'proveedores',
-            component: () => import('../views/Proveedores.vue')
-        },
-        {
-            path: 'inicio',
-            name: 'inicio',
-            component: () => import('../views/Inicio.vue')
-        },
-        {
-            path: 'usuarios',
-            name: 'usuarios',
-            component: () => import('../views/Usuarios.vue')
-        },
+        path: 'salidas',
+        name: 'salidas',
+        component: Salidas
+      },
+      {
+        path: 'entradas',
+        name: 'entradas',
+        component: Entradas
+      },
+      {
+        path: 'articulos',
+        name: 'articulos',
+        component: Articulos
+      },
+      {
+        path: 'categorias',
+        name: 'categorias',
+        component: Categorias
+      },
+      {
+        path: 'terceros/proveedores',
+        name: 'proveedores',
+        component: Proveedores
+      },
+      {
+        path: 'inicio',
+        name: 'inicio',
+        component: Inicio
+      },
+      {
+        path: 'usuarios',
+        name: 'usuarios',
+        component: Usuarios
+      },
     ]
   },
-      
- 
+
+
 ]
 
 export const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes
 })

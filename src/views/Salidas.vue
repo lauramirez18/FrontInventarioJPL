@@ -333,6 +333,19 @@ const resetForm = () => {
   selectedArticulo.value = null;
 }
 
+function calculateTotals() {
+  // Calcula el subtotal
+  const subtotal = nuevaVenta.value.articulos.reduce(
+    (acc, art) => acc + art.cantidad * art.precio,
+    0
+  );
+
+  // Calcula el IVA y el total
+  const ivaAmount = (subtotal * nuevaVenta.value.iva) / 100;
+  nuevaVenta.value.subtotal = subtotal;
+  nuevaVenta.value.total = subtotal + ivaAmount;
+}
+
 
 async function registrarFactura() {
   const facturaData = {

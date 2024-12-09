@@ -1,5 +1,5 @@
 <template>
-    <q-page class="flex flex-center">
+    <div class="flex flex-center">
       <q-card class="my-card" bordered>
         <div class="header-login">
             
@@ -44,7 +44,7 @@
         </div>
         
       </q-card>
-    </q-page>
+    </div>
   </template>
   
   <script setup>
@@ -80,7 +80,7 @@
        authStore.token = response.token;
         console.log('Token guardado:', authStore.token);
         localStorage.setItem('auth', JSON.stringify({ token }));
-        router.replace("/inicio");
+        router.replace("inicio");
       } else {
         console.log('Respuesta sin token:', response);
       }
