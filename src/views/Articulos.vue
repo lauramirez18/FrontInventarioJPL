@@ -2,9 +2,9 @@
     <q-page padding>
         <h4 class="text-center text-weight-bold">Articulos</h4>
         <hr>
-
-        <q-btn label="+ Registrar" @click="abrirFormulario" class="q-mb-md" />
-
+        <div class="main-btn-registrar">
+            <q-btn label="+ Registrar" @click="abrirFormulario" class="q-mb-md" id="btn-registrar" />
+        </div>
         <q-table class="tabla-clientes" :rows="rows" :columns="columns" row-key="name">
             <template v-slot:header="props">
                 <tr>
@@ -29,7 +29,8 @@
             <template v-slot:body-cell-opciones="props">
                 <q-td :props="props" class="tabla-cell opciones">
                     <q-btn icon="edit" color="primary" flat @click="editarArticulo(props.row)" class="q-mr-sm" />
-                    <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'" color="negative" flat
+                    <q-btn :icon="props.row.estado === 1 ? 'remove_circle' : 'check_circle'"
+                        :color="props.row.estado === 1 ? 'negative' : 'positive'" flat
                         @click="mostrarModalConfirmacion(props.row)" />
                 </q-td>
             </template>
@@ -332,6 +333,73 @@ const cancelarCambioEstado = () => {
 </script>
 
 <style scoped>
+#btn-registrar {
+    background-color: rgb(2, 21, 38);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    display: flex;
+    margin: 20px 30px 5px;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    padding: 10px;
+
+}
+
+.main-btn-registrar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    max-width: 1150px;
+}
+
+#btn-registrar:hover {
+    background-color: rgb(1, 104, 46);
+    color: white;
+    transform: translateY(-5px);
+}
+
+.q-card {
+
+    border-radius: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    margin: 10px auto;
+    padding-bottom: 20px;
+
+}
+
+.q-card-section {
+    background-color: bisque;
+    padding: 0;
+  }
+
+  .text-h6 {
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
+    background-color: rgb(85, 89, 92);
+    padding: 30px;
+  }
+
+  .q-input {
+    display: flex;
+  
+    padding: 20px 33px 22px;
+  }
+  
+  .q-card__actions {
+    display: flex;
+    padding-top: 20px;
+    justify-content: center;
+  }
+
 .tabla-clientes {
     margin: 30px auto;
     max-width: 1200px;
