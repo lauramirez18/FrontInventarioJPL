@@ -1,14 +1,4 @@
-import Articulos from '../views/Articulos.vue'
-import Categorias from '../views/Categorias.vue'
-import Proveedores from '../views/Proveedores.vue'
-import Clientes from '../views/Clientes.vue'  
-import Login from '../views/Login.vue'
-import Inicio from '../views/Inicio.vue'
-import Salidas from '../views/Salidas.vue'
-import Entradas from '../views/Entradas.vue'
-import Usuarios from '../views/Usuarios.vue'
 import MainLayout from '../layouts/MainLayout.vue'
-
 import { createRouter, createWebHistory } from 'vue-router'
 
 
@@ -20,48 +10,48 @@ const routes = [
       {
         path: '',
         name: 'Login',
-        component: () => Login
+        component: () => import('../views/Login.vue')
     
     },
       {
-        path: '/terceros/clientes',
+        path: 'terceros/clientes',
         name: 'clientes',
-        component: () => Clientes
+        component: () => import('../views/Clientes.vue')
       },
       {
           path: 'salidas',
           name: 'salidas',
-          component: () => Salidas
+          component: () => import('../views/Salidas.vue')
         },
         {
           path: 'entradas',
           name: 'entradas',
-          component: () => Entradas
+          component: () => import('../views/Entradas.vue')
         },
         {
             path: 'articulos',
             name: 'articulos',
-            component: () => Articulos
+            component: () => import('../views/Articulos.vue')
         },
         {
             path: 'categorias',
             name: 'categorias',
-            component: () => Categorias
+            component: () => import('../views/Categorias.vue')
         },
         {
-            path: '/terceros/proveedores',
+            path: 'terceros/proveedores',
             name: 'proveedores',
-            component: () => Proveedores
+            component: () => import('../views/Proveedores.vue')
         },
         {
             path: 'inicio',
             name: 'inicio',
-            component: () => Inicio
+            component: () => import('../views/Inicio.vue')
         },
         {
             path: 'usuarios',
             name: 'usuarios',
-            component: () => Usuarios
+            component: () => import('../views/Usuarios.vue')
         },
     ]
   },
