@@ -13,12 +13,7 @@
                     </th>
                 </tr>
             </template>
-            <template v-slot:body-cell-categoria="props">
-                <q-td :props="props" class="q-pa-sm">
-                    <span>{{ props.row.nombre }}</span>
-                </q-td>
-            </template>
-
+           
             <template v-slot:body-cell-estado="props">
                 <q-td :props="props" class="q-pa-sm">
                     <span style="color: green;" v-if="props.row.estado == 1">Activo</span>
@@ -96,7 +91,7 @@ const columns = ref([
         name: "categoria",
         align: "center",
         label: "Categoria",
-        field: "categoria",
+        field: row => row.categoria ? row.categoria.nombre : '', 
         sortable: true,
     },
     {

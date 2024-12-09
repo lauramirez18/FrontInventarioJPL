@@ -12,8 +12,8 @@ console.log("mitoken",token);
 
 
 const apiClient = Axios.create({
-   /*  baseURL: 'http://localhost:2999/api', */ 
-   baseURL: 'https://inventariojpl.onrender.com/api',
+ /*  baseURL: 'http://localhost:2999/api', */
+    baseURL: 'https://inventariojpl.onrender.com/api',
     headers: {
         "x-token":token ? token.token : '',
     }
